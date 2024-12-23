@@ -1,32 +1,31 @@
 <template>
   <Modal1 size="3xl" :show="showAddEditModal" @close="closeModel">
     <template #header>
-      <div class="flex flex-wrap items-center font-bold text-lg sm:text-xl">
-        {{ broker.id ? `Edit Broker Info` : `Add Broker Info` }}
+      <div class="flex items-center justify-between w-full bg-black ">
+        <h2 class="text-xl font-semibold text-gray-50">
+          {{ broker.id ? `Edit Broker Info` : `Add Broker Info` }}
+        </h2>
       </div>
     </template>
 
     <template #body>
-      <form class="p-4 grid sm:grid-cols-1 md:grid-cols-2 gap-4" :class="formData && formData.broker_name === 'iifl' ? 'lg:grid-cols-2' : 'lg:grid-cols-3'"
+      <form 
+        class="p-6 grid sm:grid-cols-1 md:grid-cols-2 gap-6" 
+        :class="formData && formData.broker_name === 'iifl' ? 'lg:grid-cols-2' : 'lg:grid-cols-3'"
         @submit.prevent="save(broker.id || 0)"
       >
-
-      
         <!-- Broker Name Input -->
-        <div class="input-form">
-          <label for="broker_name" class="form-label w-full flex flex-col sm:flex-row"
-            >Select Broker*:</label
-          >
-          <div>
-
-            <SingleSelect v-model.trim="validate.broker_name.$model" imageShow placeholder="Select a broker">
-
-            <!-- <select
-              v-model.trim="validate.broker_name.$model"
-              id="broker_name"
-              name="broker_name"
-              class=""
-            > -->
+        <div class="space-y-2">
+          <label for="broker_name" class="block text-sm font-medium text-gray-200">
+            Select Broker*
+          </label>
+          <div class="relative">
+            <SingleSelect 
+              v-model.trim="validate.broker_name.$model" 
+              imageShow 
+              placeholder="Select a broker"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-gray-600"
+            >
               <option value="">Choose a broker</option>
               <option key="zerodha" value="zerodha" image="zerodha">Zerodha</option>
               <option key="alice" value="alice" image="alice">Alice</option>
@@ -39,82 +38,98 @@
               <option key="gopocket" value="gopocket" image="gopocket">Go Pocket</option>
               <option key="moswal" value="moswal" image="moswal">Motilal Oswal</option>
               <option key="mhtrade" value="mhtrade" image="mhtrade">MH Trade</option>
-            <!-- </select> -->
-          </SingleSelect>
+            </SingleSelect>
           </div>
           <template v-if="validate.broker_name.$error">
-            <div
-              v-for="(error, index) in validate.broker_name.$errors"
-              :key="index"
-              class="text-danger mt-2"
-            >
+            <div v-for="(error, index) in validate.broker_name.$errors" :key="index" class="text-red-500 text-sm">
               {{ error.$message }}
             </div>
           </template>
         </div>
 
-        <div class="input-form">
-          <label for="broker_userid" class="form-label w-full flex flex-col sm:flex-row">
-            <div v-if="formData.broker_name === 'mhtrade' || formData.broker_name === 'dhan'" >Broker Client Id*</div>
-            <div v-else>Broker User Id*</div>
+        <!-- Broker User ID -->
+        <div class="space-y-2">
+          <label for="broker_userid" class="block text-sm font-medium text-gray-200">
+            <span v-if="formData.broker_name === 'mhtrade' || formData.broker_name === 'dhan'">Broker Client Id*</span>
+            <span v-else>Broker User Id*</span>
           </label>
           <input
             id="broker_userid"
             v-model.trim="validate.broker_userid.$model"
             type="text"
-            :disabled="(broker.id) && (!formData.is_editable)?true:false"
+            :disabled="(broker.id) && (!formData.is_editable)"
             name="broker_userid"
-            :class="[{ 'is-invalid': validate.broker_userid.$error }, {'cursor-not-allowed bg-gray-200': (broker.id) && (!formData.is_editable) ? true : false} ]"
-            :placeholder="formData.broker_name !== 'mhtrade' ? 'enter broker user id' : 'enter  client id'"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+            :class="[
+              { 'border-red-500': validate.broker_userid.$error },
+              {'cursor-not-allowed bg-gray-700': (broker.id) && (!formData.is_editable)}
+            ]"
+            :placeholder="formData.broker_name !== 'mhtrade' ? 'enter broker user id' : 'enter client id'"
           />
           <span v-if="validate.broker_userid.$error">
-            <div v-for="(error, index) in validate.broker_userid.$errors" :key="index">
+            <div v-for="(error, index) in validate.broker_userid.$errors" :key="index" class="text-red-500 text-sm">
               {{ error.$message }}
             </div>
           </span>
         </div>
 
-
-        <template v-if="formData.broker_name !== 'dhan'" >
-
-        
-          <div v-if="formData.broker_name !== 'shoonya' && formData.broker_name !== 'gopocket' && formData.broker_name !== 'iifl' && formData.broker_name !== 'moswal'" class="input-form">
-            <label for="broker_pin" class="form-label w-full flex flex-col sm:flex-row">
-              <div v-if="formData.broker_name !== 'mhtrade'">Broker Pin*</div>
-              <div v-else> Verification*</div>
+        <template v-if="formData.broker_name !== 'dhan'">
+          <!-- Broker Pin -->
+          <div v-if="formData.broker_name !== 'shoonya' && formData.broker_name !== 'gopocket' && formData.broker_name !== 'iifl' && formData.broker_name !== 'moswal'" 
+            class="space-y-2"
+          >
+            <label for="broker_pin" class="block text-sm font-medium text-gray-200">
+              <span v-if="formData.broker_name !== 'mhtrade'">Broker Pin*</span>
+              <span v-else>Verification*</span>
             </label>
-            <!-- dummyBrokerPin -->
-            <input v-if="dummyBrokerPin.show" id="broker_pin" v-model.trim="dummyBrokerPin.data" type="text" name="broker_pin"
+            <input 
+              v-if="dummyBrokerPin.show" 
+              id="broker_pin" 
+              v-model.trim="dummyBrokerPin.data" 
+              type="text" 
+              name="broker_pin"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
               :placeholder="formData.broker_name !== 'mhtrade' ? 'Enter broker pin' : 'Enter verification code'"
             />
-
-            <input v-else id="broker_pin" v-model.trim="validate.broker_pin.$model" type="text" name="broker_pin"
-              :class="{ 'is-invalid': validate.broker_pin.$error }"
+            <input 
+              v-else 
+              id="broker_pin" 
+              v-model.trim="validate.broker_pin.$model" 
+              type="text" 
+              name="broker_pin"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              :class="{ 'border-red-500': validate.broker_pin.$error }"
               :placeholder="formData.broker_name !== 'mhtrade' ? 'Enter broker pin' : 'Enter verification code'"
             />
             <span v-if="validate.broker_pin.$error">
-              <div v-for="(error, index) in validate.broker_pin.$errors" :key="index">
+              <div v-for="(error, index) in validate.broker_pin.$errors" :key="index" class="text-red-500 text-sm">
                 {{ error.$message }}
               </div>
             </span>
           </div>
 
-          <div v-if="formData.broker_name === 'upstox' || formData.broker_name === 'gopocket'" class="input-form">
-              <label for="mobile" class="w-full flex flex-col sm:flex-row"> Mobile Number </label>
-
-              <input id="mobile" v-model.trim="mobileNumber" type="text" name="mobile" 
-                class="w-full" placeholder="10 digit mobile number" 
-              />
-              
-              <span v-if="validate.broker_pin.$error && mobileNumber.length !== 10">
-                  <div>
-                    Value should be 10 digits
-                  </div>
-              </span>
+          <!-- Mobile Number -->
+          <div v-if="formData.broker_name === 'upstox' || formData.broker_name === 'gopocket'" class="space-y-2">
+            <label for="mobile" class="block text-sm font-medium text-gray-200">
+              Mobile Number
+            </label>
+            <input 
+              id="mobile" 
+              v-model.trim="mobileNumber" 
+              type="text" 
+              name="mobile"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              :class="{ 'border-red-500': validate.broker_pin.$error && mobileNumber.length !== 10 }"
+              placeholder="10 digit mobile number"
+            />
+            <span v-if="validate.broker_pin.$error && mobileNumber.length !== 10">
+              <div class="text-red-500 text-sm">Value should be 10 digits</div>
+            </span>
           </div>
 
-          <div v-if="formData.broker_name !== 'mhtrade' && formData.broker_name !== 'iifl'" class="input-form">
-            <label for="broker_qr_key" class="form-label w-full flex flex-col sm:flex-row">
+          <!-- Broker QR Key -->
+          <div v-if="formData.broker_name !== 'mhtrade' && formData.broker_name !== 'iifl'" class="space-y-2">
+            <label for="broker_qr_key" class="block text-sm font-medium text-gray-200">
               Broker Qr Key*
             </label>
             <input
@@ -122,17 +137,20 @@
               v-model.trim="validate.broker_qr_key.$model"
               type="text"
               name="broker_qr_key"
-              :class="{ 'is-invalid': validate.broker_qr_key.$error }"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              :class="{ 'border-red-500': validate.broker_qr_key.$error }"
               placeholder="enter broker qr key"
             />
             <span v-if="validate.broker_qr_key.$error">
-              <div v-for="(error, index) in validate.broker_qr_key.$errors" :key="index">
+              <div v-for="(error, index) in validate.broker_qr_key.$errors" :key="index" class="text-red-500 text-sm">
                 {{ error.$message }}
               </div>
             </span>
           </div>
-          <div v-if="formData.broker_name !== 'mhtrade' && formData.broker_name !== 'swastika'" class="input-form">
-            <label for="broker_api" class="form-label w-full flex flex-col sm:flex-row">
+
+          <!-- Broker API -->
+          <div v-if="formData.broker_name !== 'mhtrade' && formData.broker_name !== 'swastika'" class="space-y-2">
+            <label for="broker_api" class="block text-sm font-medium text-gray-200">
               Broker Api*
             </label>
             <input
@@ -140,102 +158,121 @@
               v-model.trim="validate.broker_api.$model"
               type="text"
               name="broker_api"
-              :class="{ 'is-invalid': validate.broker_api.$error }"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              :class="{ 'border-red-500': validate.broker_api.$error }"
               placeholder="enter broker api"
             />
             <span v-if="validate.broker_api.$error">
-              <div v-for="(error, index) in validate.broker_api.$errors" :key="index">
+              <div v-for="(error, index) in validate.broker_api.$errors" :key="index" class="text-red-500 text-sm">
                 {{ error.$message }}
               </div>
             </span>
           </div>
 
-
-          <div v-if="formData.broker_name !== 'mhtrade' && formData.broker_name !== 'shoonya' && formData.broker_name !== 'swastika'" class="input-form">
-            <label for="broker_api_secret" class="form-label w-full flex flex-col sm:flex-row">
-              <p v-if="formData.broker_name === 'moswal'">Provide DOB*</p>
-              <p v-else>Broker Api Secret*</p>
+          <!-- Broker API Secret -->
+          <div v-if="formData.broker_name !== 'mhtrade' && formData.broker_name !== 'shoonya' && formData.broker_name !== 'swastika'" class="space-y-2">
+            <label for="broker_api_secret" class="block text-sm font-medium text-gray-200">
+              <span v-if="formData.broker_name === 'moswal'">Provide DOB*</span>
+              <span v-else>Broker Api Secret*</span>
             </label>
             <input
               id="broker_api_secret"
               v-model.trim="validate.broker_api_secret.$model"
               type="text"
               name="broker_api_secret"
-              :class="{ 'is-invalid': validate.broker_api_secret.$error }"
-              :placeholder="formData.broker_name === 'moswal'? 'Format dd/mm/yyyy(30/01/1990)' : 'enter broker api secreat'"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              :class="{ 'border-red-500': validate.broker_api_secret.$error }"
+              :placeholder="formData.broker_name === 'moswal'? 'Format dd/mm/yyyy(30/01/1990)' : 'enter broker api secret'"
             />
             <span v-if="validate.broker_api_secret.$error">
-              <div v-for="(error, index) in validate.broker_api_secret.$errors" :key="index">
+              <div v-for="(error, index) in validate.broker_api_secret.$errors" :key="index" class="text-red-500 text-sm">
                 {{ error.$message }}
               </div>
             </span>
           </div>
-
-
         </template>
 
-        <div v-if="formData.broker_name !== 'dhan' && formData.broker_name !== 'iifl'" class="input-form">
-          <label for="broker_password" class="form-label w-full flex flex-col sm:flex-row">
-            <div v-if="formData.broker_name === 'mhtrade'">Password*</div>
-            <div v-else-if="formData.broker_name === 'upstox'">Redirect Url*</div>
-            <div v-else-if="formData.broker_name === 'swastika'">Company Source Name*</div>
-            <div v-else>Broker Password*</div>
+        <!-- Broker Password -->
+        <div v-if="formData.broker_name !== 'dhan' && formData.broker_name !== 'iifl'" class="space-y-2">
+          <label for="broker_password" class="block text-sm font-medium text-gray-200">
+            <span v-if="formData.broker_name === 'mhtrade'">Password*</span>
+            <span v-else-if="formData.broker_name === 'upstox'">Redirect Url*</span>
+            <span v-else-if="formData.broker_name === 'swastika'">Company Source Name*</span>
+            <span v-else>Broker Password*</span>
           </label>
           <input
             id="broker_password"
             v-model.trim="validate.broker_password.$model"
             type="text"
             name="broker_password"
-            :class="{ 'is-invalid': validate.broker_password.$error }"
-            :placeholder="formData.broker_name === 'upstox' ? 'Enter redirect url' : formData.broker_name === 'swastika' ? 'Enter company source name' :'Enter password'"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+            :class="{ 'border-red-500': validate.broker_password.$error }"
+            :placeholder="formData.broker_name === 'upstox' ? 'Enter redirect url' : formData.broker_name === 'swastika' ? 'Enter company source name' : 'Enter password'"
           />
           <span v-if="validate.broker_password.$error">
-            <div v-for="(error, index) in validate.broker_password.$errors" :key="index">
+            <div v-for="(error, index) in validate.broker_password.$errors" :key="index" class="text-red-500 text-sm">
               {{ error.$message }}
             </div>
           </span>
         </div>
 
-
-        <div v-if="formData.broker_name === 'dhan'" class="input-form">
-          <label for="broker_token" class="form-label w-full flex flex-col sm:flex-row">
-            Aceess Token*
+        <!-- Access Token for Dhan -->
+        <div v-if="formData.broker_name === 'dhan'" class="space-y-2">
+          <label for="broker_token" class="block text-sm font-medium text-gray-200">
+            Access Token*
           </label>
           <input
             id="broker_token"
             v-model.trim="validate.broker_token.$model"
             type="text"
             name="broker_token"
-            :class="{ 'is-invalid': validate.broker_token.$error }"
-            placeholder="enter aceess token"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+            :class="{ 'border-red-500': validate.broker_token.$error }"
+            placeholder="enter access token"
           />
-          <span v-if="validate.broker_token.$error">
-              Value is required
+          <span v-if="validate.broker_token.$error" class="text-red-500 text-sm">
+            Value is required
           </span>
         </div>
 
-
-        <!-- is_active -->
-        <div class="input-form">
-          <label class="form-label flex flex-col sm:flex-row mb-3"> Account Active </label>
-          <ButtonSwitch id="is_active" name="is_active" v-model.trim="validate.is_active.$model" />
-
+        <!-- Account Active Switch -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-200 mb-2">
+            Account Active
+          </label>
+          <ButtonSwitch 
+            id="is_active" 
+            name="is_active" 
+            v-model.trim="validate.is_active.$model" 
+          />
           <span v-if="validate.is_active.$error">
-            <div v-for="(error, index) in validate.is_active.$errors" :key="index">
+            <div v-for="(error, index) in validate.is_active.$errors" :key="index" class="text-red-500 text-sm">
               {{ error.$message }}
             </div>
           </span>
         </div>
 
-
-        <div class="flex justify-end items-end md:col-span-2" :class="formData && formData.broker_name === 'iifl' ? 'lg:col-span-2' : 'lg:col-span-3'">
-          <button type="submit" class="btn-submit" @click="submitForm">Submit</button>
-
-          <button type="button" class="btn-close" @click="closeModel">Close</button>
+        <!-- Form Actions -->
+        <div class="flex justify-end items-center gap-4 md:col-span-2" 
+          :class="formData && formData.broker_name === 'iifl' ? 'lg:col-span-2' : 'lg:col-span-3'"
+        >
+          <button 
+            type="button" 
+            class="px-6 py-2.5 text-sm font-medium text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-600" 
+            @click="closeModel"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="px-6 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            @click="submitForm"
+          >
+            Submit
+          </button>
         </div>
       </form>
     </template>
-
   </Modal1>
 </template>
 

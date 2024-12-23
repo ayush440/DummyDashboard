@@ -1,127 +1,132 @@
 <template>
-  <div class="relative w-full bg-[#2a2a2c] min-h-screen">
-    <div class="px-0 md:px-6 py-4 md:py-6 bg-[#2a2a2c]">
-      <!-- Top Grid Section -->
-      <div class="flex flex-col lg:flex-row gap-4 sm:gap-6 mb-4">
-        <!-- Today's Profit Section -->
-        <div class="donut-chart-container lg:w-[40%] mx-2 md:mx-0 -mt-1 mb-4 py-10">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">Today's Profit</h3>
-            <button 
-              v-if="hasMoreChartItems" 
-              @click="openChartSidebar" 
-              class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            >
-              View More
-              <ArrowRightIcon class="w-4 h-4" />
-            </button>
-          </div>
-          
-          <!-- Loader -->
-          <div v-if="!showTableData" class="flex justify-center items-center h-64">
-            <div class="loader"></div>
-          </div>
-          
-          <!-- Chart and Legend when data is ready -->
-          <div v-else class="flex flex-col sm:flex-row items-center w-full">
-            <!-- Chart Wrapper -->
-            <div class="donut-chart-wrapper">
-              <canvas ref="profitChart" class="donut-chart"></canvas>
+  <div class="relative w-full bg-[#1a1a1a] min-h-screen">
+    <div class="px-6 py-6">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-semibold text-white">Dashboard</h1>
+        <h2 class="text-xl font-semibold text-white">Total profit</h2>
+      </div>
+
+      <!-- Main Grid Layout -->
+      <div class="grid grid-cols-12 gap-4">
+        <!-- Left Section - Stats Cards -->
+        <div class="col-span-4 grid grid-cols-2 gap-4">
+          <!-- Total Orders -->
+          <div class="bg-[#242424] p-4 rounded-lg">
+            <div class="flex flex-col gap-2">
+              <div class="w-8 h-8">
+                <ShoppingBagIcon class="w-8 h-8 text-[#8b5cf6]" />
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-white">{{ combinedTotalOrders }}</h3>
+                <p class="text-sm text-gray-400">Total orders</p>
+              </div>
             </div>
-            
-            <!-- Legend -->
-            <div class="legend-wrapper">
-              <ul class="text-sm">
-                <li 
-                  v-for="(item, index) in displayedChartData" 
-                  :key="index" 
-                  class="legend-item"
-                >
-                  <span
-                    class="legend-color"
-                    :style="{ backgroundColor: item.color }"
-                  ></span>
-                  <span
-                    class="legend-name"
-                    :title="item.symbol"
-                  >
-                    {{ item.symbol }} {{ item.isPaper ? '(Paper)' : '' }}- 
-                  </span>
-                   <span class="legend-value" :class="{'text-green-600': parseFloat(item.pnl) > 0, 'text-red-600': parseFloat(item.pnl) < 0}">
-                    {{ formatPnL(parseFloat(item.pnl)) }}
-                  </span>
-                </li>
-              </ul>
-              <div class="mt-4 text-sm font-semibold">
-                Total PnL: <span :class="{'text-green-600': combinedTotalPnL > 0, 'text-red-600': combinedTotalPnL < 0}">
-                  {{ formatPnL(combinedTotalPnL) }}
-                </span>
+          </div>
+
+          <!-- Strategy Deployed -->
+          <div class="bg-[#242424] p-4 rounded-lg">
+            <div class="flex flex-col gap-2">
+              <div class="w-8 h-8">
+                <PieChartIcon class="w-8 h-8 text-[#8b5cf6]" />
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-white">{{ totalStrategies }}</h3>
+                <p class="text-sm text-gray-400">Strategy deployed</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brokers -->
+          <div class="bg-[#242424] p-4 rounded-lg">
+            <div class="flex flex-col gap-2">
+              <div class="w-8 h-8">
+                <DiamondIcon class="w-8 h-8 text-[#8b5cf6]" />
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-white">{{ brokersToken.message }}</h3>
+                <p class="text-sm text-gray-400">Brokers</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social Media -->
+          <div class="bg-[#242424] p-4 rounded-lg">
+            <div class="flex flex-col gap-2">
+              <div class="w-8 h-8">
+                <BrandTelegramIcon class="w-8 h-8 text-[#8b5cf6]" />
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-white">
+                  <a href="#" class="hover:text-[#8b5cf6] transition-colors">Connect</a>
+                </h3>
+                <p class="text-sm text-gray-400">Social media</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Today's Sales Section -->
-        <div class="bg-[#1d1d20] p-4 md:p-6 rounded-lg shadow-sm lg:w-[60%] mx-2 md:mx-0 -mt-1 mb-4 sm:mb-6">
-          <h2 class="text-lg font-semibold text-white">Today's Sales</h2>
-          <p class="text-sm text-gray-500 mb-4 sm:mb-6">Sales Summary</p>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <!-- Total Profit -->
-            <div class="bg-[#fffff] border border-gray-300 rounded-lg p-4">
-              <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center mb-3">
-                <ChartLineIcon class="w-6 h-6 text-white" />
+        <!-- Right Section - Profit Chart -->
+        <div class="col-span-8">
+          <div class="bg-[#242424] rounded-lg p-6">
+            <div class="flex gap-8">
+              <!-- Donut Chart with Animation -->
+              <div class="relative w-[300px] h-[300px] ml-36  animate-slide-in-left">
+                <canvas ref="profitChart" class="donut-chart"></canvas>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="text-center">
+                    <p class="text-sm text-gray-400">Profit</p>
+                    <p class="text-xl font-bold text-green-400">
+                      {{ formatPnL(combinedTotalPnL) }}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div class="flex items-baseline gap-1">
-                <span :class="{'text-green-600': combinedTotalPnL > 0, 'text-red-600': combinedTotalPnL < 0}" class="text-xl sm:text-2xl font-bold">
-                  {{ formatPnL(combinedTotalPnL) }}
-                </span>
-              </div>
-              <p class="text-sm text-gray-600 mt-4">Total Profit</p>
-            </div>
 
-            <!-- Brokers Connected -->
-            <div class="bg-[#fffff] border border-gray-300 rounded-lg p-4">
-              <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center mb-3">
-                <NetworkIcon class="w-6 h-6 text-white" />
+              <!-- Legend with Animation -->
+              <div class="flex-1 animate-slide-in-right">
+                <div class="space-y-4">
+                  <div v-for="(item, index) in displayedChartData" 
+                       :key="index"
+                       class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full" 
+                            :style="{ backgroundColor: item.color }"></span>
+                      <span class="text-gray-300">{{ item.symbol }}</span>
+                    </div>
+                    <span :class="{'text-green-400': parseFloat(item.pnl) > 0, 'text-red-400': parseFloat(item.pnl) < 0}">
+                      {{ formatPnL(parseFloat(item.pnl)) }}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <h3 class="text-xl sm:text-2xl font-bold">{{ brokersToken.message }}</h3>
-              <p class="text-sm text-gray-600 mt-4">Brokers Connected</p>
-            </div>
-
-            <!-- Total Orders -->
-            <div class="bg-[#fffff] border border-gray-300 rounded-lg p-4">
-              <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center mb-3">
-                <ShoppingCartIcon class="w-6 h-6 text-white" />
-              </div>
-              <h3 class="text-xl sm:text-2xl font-bold">{{ combinedTotalOrders }}</h3>
-              <p class="text-sm text-gray-600 mt-4">Total Orders</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Positions Table Section -->
-       
-      <div class="bg-white rounded-lg shadow-sm mx-2 md:mx-0">
-        <div class="p-4 sm:p-6 border-b">
-          <div class="flex justify-between items-center">
-            <h2 class="text-lg font-semibold">Positions</h2>
-            <RouterLink to="/positions" 
-                        class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2">
-              All
-              <ArrowRightIcon class="w-4 h-4" />
-            </RouterLink>
-          </div>
+     
+    </div>
+
+    <!-- Positions Table -->
+    <div class="bg-[#242424] rounded-lg mx-6">
+      <div class="p-4 sm:p-6 border-b">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg text-gray-500 font-semibold">Positions</h2>
+          <RouterLink to="/positions" 
+                    class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2">
+            All
+            <ArrowRightIcon class="w-4 h-4" />
+          </RouterLink>
         </div>
-        <div class="overflow-x-auto">
-          <positionTable :positions="displayedPositions.slice(0, maxDisplayedPositions)" :mode="isTabActive" />
-        </div>
-        <div v-if="displayedPositions.length > maxDisplayedPositions" class="p-4 text-center">
-          <button @click="openPositionsSidebar" class="text-blue-600 hover:text-blue-800">
-            View More
-          </button>
-        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <positionTable :positions="displayedPositions.slice(0, maxDisplayedPositions)" :mode="isTabActive" />
+      </div>
+      <div v-if="displayedPositions.length > maxDisplayedPositions" class="p-4 text-center">
+        <button @click="openPositionsSidebar" class="text-blue-600 hover:text-blue-800">
+          View More
+        </button>
       </div>
     </div>
   </div>
@@ -155,8 +160,12 @@ import {
   ChartLineIcon, 
   NetworkIcon, 
   ShoppingCartIcon, 
-  ArrowRightIcon
+  ArrowRightIcon,
+  ShoppingBagIcon,
+  PieChartIcon,
+  DiamondIcon
 } from 'lucide-vue-next'
+
 import {
   Chart,
   DoughnutController,
@@ -170,7 +179,6 @@ import { useManualOrdersStore } from "@/stores/groups/manualOrders"
 import SideBar2 from '@/components/sidebar2/main.vue'
 
 Chart.register(DoughnutController, ArcElement, Tooltip, Legend, Title)
-
 
 const profitChart = ref<HTMLCanvasElement | null>(null)
 let chart: any = null
@@ -199,10 +207,9 @@ const openChartSidebar = () => {
 }
 
 const showTableData = computed<boolean>(() => {
-    const state = positionsStore.state[positionsStore.endpoint];
-    return state && state.loading === false;
-});
-
+  const state = positionsStore.state[positionsStore.endpoint];
+  return state && state.loading === false;
+})
 
 const openPositionsSidebar = () => {
   sidebarContent.value = 'positions'
@@ -308,7 +315,7 @@ const createChart = () => {
           datasets: [{
             data: displayedChartData.value.map(item => item.pnl),
             backgroundColor: displayedChartData.value.map(item => item.color),
-            borderWidth: 2,
+            borderWidth: 0,
             borderColor: '#ffffff',
           }]
         },
@@ -355,7 +362,6 @@ onMounted(async () => {
 
 watch(() => [strategiesPositions.value, paperPositionsStore.mainPaperPositions, isTabActive.value], updateChart, { deep: true })
 
-
 interface Broker {
   id: number
   broker_name: string
@@ -392,8 +398,8 @@ const brokersToken = computed(() => {
 
 <style scoped lang="scss">
 .donut-chart-container {
-  @apply bg-white rounded-lg shadow-sm p-4 sm:p-6;
-  height: 300px; /* Fixed height */
+  @apply bg-[#1d1d20] rounded-lg shadow-sm p-4 sm:p-6;
+  height: 270px; /* Fixed height */
 }
 
 .donut-chart-wrapper {
@@ -401,7 +407,7 @@ const brokersToken = computed(() => {
 }
 
 .donut-chart {
-  @apply h-[160px] w-full max-w-[160px] sm:h-[200px] sm:max-w-[200px];
+  @apply h-[200px] w-full max-w-[200px] sm:h-[200px] sm:max-w-[200px];
 }
 
 .legend-wrapper {

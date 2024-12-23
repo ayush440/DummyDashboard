@@ -16,7 +16,7 @@
           @click.self="clickOutside"
         >
           <!-- Modal content -->
-          <div class="relative bg-third-light dark:text-white rounded-lg shadow" :class="{'mt-10': !popup}">
+          <div class="relative bg-[#2a2a2c] dark:text-white rounded-lg shadow" :class="{'mt-10': !popup}">
 
             <!-- Modal header -->
             <div

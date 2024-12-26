@@ -24,12 +24,12 @@ export const useNavlinksStore = defineStore('navlink', () => {
       title: 'Strategies',
       permission: 'Read_strategy'
     },
-    {
-      icon: 'UsersIcon',
-      name: 'brokers',
-      title: 'Brokers',
-      permission: 'Read_broker'
-    },
+    // {
+    //   icon: 'UsersIcon',
+    //   name: 'brokers',
+    //   title: 'Brokers',
+    //   permission: 'Read_broker'
+    // },
     {
       icon: 'CreditCardIcon',
       name: 'positions',
@@ -52,10 +52,18 @@ export const useNavlinksStore = defineStore('navlink', () => {
     },
 
     {
-      icon: 'BookOpenIcon',
-      name: 'courses',
-      title: 'Courses',
-    }
+      icon: 'VideoIcon',
+      name: 'videos',
+      title: 'Videos',
+      permission: 'Read_videos'
+    },
+    
+
+    // {
+    //   icon: 'BookOpenIcon',
+    //   name: 'courses',
+    //   title: 'Courses',
+    // }
   ])
 
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-white p-6 rounded-lg">
+  <div class="w-full bg-[#1DID20] p-6 rounded-lg">
     <!-- Desktop View -->
     <div class="hidden sm:block space-y-2">
       <!-- Header row -->
@@ -16,8 +16,8 @@
       <!-- Strategy groups -->
       <template v-if="displayedPositions.length > 0">
         <div v-for="(group, strategyId) in groupedPositions" :key="strategyId" class="mb-4">
-          <div class="flex justify-between items-center px-4 py-2 bg-gray-100 rounded-t-lg">
-            <h3 class="font-semibold text-lg">{{ group.name }}</h3>
+          <div class="flex justify-between items-center px-4 py-2 bg-[#262626] rounded-t-lg text-white">
+            <h3 class="font-semibold text-lg ">{{ group.name }}</h3>
             <div :class="getPnLColor(group.pnl)" class="font-bold">
               {{ formatPnL(group.pnl) }}
             </div>
@@ -25,53 +25,53 @@
           <div v-for="(position, index) in group.positions" :key="position.id" class="relative">
             <div
               :class="[
-                'cursor-pointer transition-colors duration-150 ease-in-out overflow-hidden',
-                index % 2 === 0 ? 'bg-[third]' : 'bg-third',
+                'cursor-pointer transition-colors duration-150 ease-in-out overflow-hidden text-white',
+                index % 2 === 0 ? 'bg-[#1d1d20]' : 'bg-[#262626]',
                 expandedRows[position.id] ? 'rounded-b-none' : ''
               ]"
               @click="toggleExpand(position.id)"
             >
-              <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_40px] items-center px-4 py-3">
+              <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_40px] items-center px-4 py-3 text-white">
                 <div>{{ group.name }}</div>
                 <div>{{ position.quantity }}</div>
                 <div>{{ position.side }}</div>
                 <div>{{ new Date(position.updated_at).toLocaleTimeString() }}</div>
-                <div :class="getPnLColor(position.pnl)">{{ formatPnL(position.pnl) }}</div>
+                <div  :class="getPnLColor(position.pnl) ">{{ formatPnL(position.pnl) }}</div>
                 <div>{{ position.type }}</div>
                 <div class="text-right">
-                  <ChevronDownIcon v-if="expandedRows[position.id]" class="w-5 h-5 text-black inline-block" />
-                  <ChevronRightIcon v-else class="w-5 h-5 text-black inline-block" />
+                  <ChevronDownIcon v-if="expandedRows[position.id]" class="w-5 h-5 text-white inline-block" />
+                  <ChevronRightIcon v-else class="w-5 h-5 text-white inline-block" />
                 </div>
               </div>
             </div>
-            <div v-if="expandedRows[position.id]" :class="[index % 2 === 0 ? 'bg-[third]' : 'bg-third', 'rounded-b-lg']">
+            <div v-if="expandedRows[position.id]" :class="[index % 2 === 0 ? 'bg-[#1d1d20]' : 'bg-[#262626]', 'rounded-b-lg']">
               <div class="px-4 py-3 grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] gap-4 items-center">
                 <div class="truncate-text">
                   <p class="text-sm font-medium text-gray-500">Strategy</p>
-                  <p class="mt-1 text-sm text-gray-900">{{ position.tradingsymbol }}</p>
+                  <p class="mt-1 text-sm text-white">{{ position.tradingsymbol }}</p>
                 </div>
                 <div>
                   <p class="text-sm font-medium text-gray-500">Broker</p>
-                  <p class="mt-1 text-sm text-gray-900">{{ position.broker?.broker_name }}</p>
+                  <p class="mt-1 text-sm text-white">{{ position.broker?.broker_name }}</p>
                 </div>
                 <div>
                   <p class="text-sm font-medium text-gray-500">Scripts</p>
-                  <p class="mt-1 text-sm text-gray-900">{{ group.script }}</p>
+                  <p class="mt-1 text-sm text-white">{{ group.script }}</p>
                 </div>
                 <div>
                   <p class="text-sm font-medium text-gray-500">Buy Price</p>
-                  <p class="mt-1 text-sm text-gray-900">{{ position.buy_price }}</p>
+                  <p class="mt-1 text-sm text-white">{{ position.buy_price }}</p>
                 </div>
                 <div>
                   <p class="text-sm font-medium text-gray-500">Sell Price</p>
-                  <p class="mt-1 text-sm text-gray-900">{{ position.sell_price }}</p>
+                  <p class="mt-1 text-sm text-white">{{ position.sell_price }}</p>
                 </div>
                 <div>
                   <p class="text-sm font-medium text-gray-500">P&L</p>
-                  <p :class="['mt-1 text-sm', getPnLColor(position.pnl)]">{{ formatPnL(position.pnl) }}</p>
+                  <p :class="['mt-1 text-sm text-white', getPnLColor(position.pnl)]">{{ formatPnL(position.pnl) }}</p>
                 </div>
                 <div>
-                  <button @click.stop="squareOff(position)" class="bg-[#EDF4FF] text-indigo-600 px-4 py-2 rounded-lg text-sm border border-indigo-200 transition-all duration-150 flex items-center space-x-2 hover:border-indigo-800 hover:bg-[#EDF4FF]">
+                  <button @click.stop="squareOff(position)" class="bg-[#262626] text-[#8B7EFF] px-4 p-1 rounded-full text-sm border border-[#8B7EFF] transition-all duration-150 flex items-center space-x-2 ">
                     <RefreshCwIcon class="w-4 h-4" />
                     <span>Square off</span>
                   </button>
@@ -121,27 +121,27 @@
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <p class="font-medium text-gray-500">Broker</p>
-                  <p class="text-gray-900">{{ position.broker?.broker_name }}</p>
+                  <p class="text-white">{{ position.broker?.broker_name }}</p>
                 </div>
                 <div>
                   <p class="font-medium text-gray-500">Scripts</p>
-                  <p class="text-gray-900">{{ group.script }}</p>
+                  <p class="text-white">{{ group.script }}</p>
                 </div>
                 <div>
                   <p class="font-medium text-gray-500">Buy Price</p>
-                  <p class="text-gray-900">{{ position.buy_price }}</p>
+                  <p class="text-white">{{ position.buy_price }}</p>
                 </div>
                 <div>
                   <p class="font-medium text-gray-500">Sell Price</p>
-                  <p class="text-gray-900">{{ position.sell_price }}</p>
+                  <p class="text-white">{{ position.sell_price }}</p>
                 </div>
                 <div>
                   <p class="font-medium text-gray-500">Time</p>
-                  <p class="text-gray-900">{{ new Date(position.updated_at).toLocaleTimeString() }}</p>
+                  <p class="text-white">{{ new Date(position.updated_at).toLocaleTimeString() }}</p>
                 </div>
               </div>
             </div>
-            <button @click.stop="squareOff(position)" class="w-full bg-[#EDF4FF] text-indigo-600 px-4 py-2 rounded-lg text-xs border border-indigo-200 mt-2 flex items-center justify-center space-x-1">
+            <button @click.stop="squareOff(position)" class="w-full bg-[#1d1d20] text-indigo-600 px-4 py-2 rounded-lg text-xs border border-indigo-200 mt-2 flex items-center justify-center space-x-1">
               <RefreshCwIcon class="w-3 h-3" />
               <span>Square off</span>
             </button>
@@ -157,6 +157,7 @@
     </div>
   </div>
 </template>
+<sqoffManual />
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'

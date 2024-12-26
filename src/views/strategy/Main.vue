@@ -1,232 +1,337 @@
-
 <template>
-
-  <div class="w-full h-full md:h-full bg-[third]">
-    <div class="flex flex-col rounded-lg  ml-2 mr-2 sm:ml-4 sm:mr-4  mt-2">
-      <div v-if="showTableData && dropdownOptions.length" class="flex justify-between items-center w-full mt-2 mb-2 px-2 md:hidden" style="z-index: 100">
-
-        <div class="w-2/3"> 
-          <SingleSelect v-model="selectedPlan" iconShow placeholder="Select a Plan" >
-            <option v-for="option in dropdownOptions" :icon="option.icon" :key="option.value" :value="option.id">{{ option.label }}</option>
-          </SingleSelect>
+  <div class="w-full h-full md:h-full bg-[#2a2a2c]">
+    <div class="flex flex-col rounded-lg ml-2 mr-2 sm:ml-4 sm:mr-4 mt-2">
+      <!-- Filters Container -->
+      <div class="flex justify-between items-start p-4">
+        <!-- Strategy Type Filters -->
+        <div class="flex items-center">
+          <span class="text-gray-300 mr-4">Showing strategies type:</span>
+          <div class="flex space-x-3">
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" 
+                     v-model="filters.all" 
+                     @change="handleAllChange"
+                     class="form-checkbox rounded border-gray-600 bg-transparent" />
+              <span class="text-gray-300 text-sm">All</span>
+            </label>
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" 
+                     v-model="filters.myStrategies" 
+                     @change="handleStrategyTypeChange"
+                     class="form-checkbox rounded border-gray-600 bg-transparent" />
+              <span class="text-gray-300 text-sm">My strategies</span>
+            </label>
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" 
+                     v-model="filters.otherStrategies" 
+                     @change="handleStrategyTypeChange"
+                     class="form-checkbox rounded border-gray-600 bg-transparent" />
+              <span class="text-gray-300 text-sm">Other strategies</span>
+            </label>
+          </div>
         </div>
 
-        <div class="font-semibold text-gray-700 dark:text-tableText mr-1 sm:mr-2">
-          {{ filteredStrategies.length }}  Strategies
+        <!-- Symbol Filters -->
+        <div class="flex items-center">
+          <span class="text-gray-300 mr-4">Symbols:</span>
+          <div class="flex space-x-3">
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" 
+                     v-model="filters.symbols.ALL" 
+                     @change="handleSymbolAllChange"
+                     class="form-checkbox rounded border-gray-600 bg-transparent" />
+              <span class="text-gray-300 text-sm">All</span>
+            </label>
+            <label v-for="symbol in availableSymbols" 
+                   :key="symbol"
+                   class="flex items-center space-x-2">
+              <input type="checkbox" 
+                     v-model="filters.symbols[symbol]" 
+                     @change="handleSymbolChange"
+                     class="form-checkbox rounded border-gray-600 bg-transparent" />
+              <span class="text-gray-300 text-sm">{{ symbol }}</span>
+            </label>
+          </div>
         </div>
-
       </div>
 
-      <div class="min-h-[50vh] bg-secondary">
-        <div v-if="showTableData && reorderedPlans.length">
-          <div class="unselectable flex pl-2 border-b border-black">
-            <div class="flex flex-wrap overflow-auto font-semibold text-sm lg:text-base xl:text-lg border-b border-secondary">
-              <div
-                class="px-2 pt-2 pb-[1px] text-black dark:text-tableText w-[100%] hidden md:flex"
+      <!-- Strategy Count -->
+      <div class="px-4 text-gray-400 text-sm">
+        {{ filteredStrategies.length }} Strategies
+      </div>
+
+      <!-- Strategy Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+        <div v-for="strategy in filteredStrategies" 
+             :key="strategy.id" 
+             class="bg-[#1d1d20] rounded-lg p-4">
+          <!-- Tags -->
+          <div class="flex gap-2 mb-4">
+            <span :class="[
+              'px-3 py-1 text-xs rounded-xl font-medium',
+              getSymbolClass(strategy.script)
+            ]">
+              {{ strategy.script }}
+            </span>
+            <span :class="[
+              'px-3 py-1 text-xs rounded-xl font-medium',
+              strategy.risk === 'Low risk' ? 'bg-[#2E7D32] text-white' : 'bg-[#D32F2F] text-white'
+            ]">
+              {{ strategy.risk }}
+            </span>
+          </div>
+
+          <!-- Strategy Name and Toggle -->
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-medium text-white">{{ strategy.name }}</h3>
+            <div class="flex items-center">
+              <span class="mr-2 text-sm" :class="strategy.is_active ? 'text-green-400' : 'text-gray-400'">
+                {{ strategy.is_active ? 'Active' : 'Inactive' }}
+              </span>
+              <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out"
+                   :class="strategy.is_active ? 'bg-green-500' : 'bg-[#333336]'"
+                   @click="handleStrategyToggle(strategy)">
+                <div class="inline-block h-4 w-4 transform rounded-full bg-[#4a4a50] transition-transform duration-200 ease-in-out"
+                     :class="strategy.is_active ? 'translate-x-6' : 'translate-x-1'">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Strategy Details -->
+          <div class="grid grid-cols-2 gap-4 mb-6 bg-[#1d1d20] border border-gray-600 rounded-lg p-8">
+            <div class="flex flex-col items-center border-r border-gray-600 pr-4">
+              <div class="w-12 h-12 p-2 mb-2 border border-gray-600 rounded-xl flex items-center justify-center">
+                <Monitor class="w-6 h-6 text-gray-400" />
+              </div>
+              <span class="text-sm text-gray-400">Option</span>
+              <span :class="[ 
+                'text-base font-medium', 
+                strategy.option_type === 'Buy' ? 'text-green-500' : 'text-red-500' 
+              ]">{{ strategy.option_type }}</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="w-12 h-12 p-2 mb-2 border border-gray-600 rounded-xl flex items-center justify-center">
+                <IndianRupee class="w-6 h-6 text-gray-400" />
+              </div>
+              <span class="text-sm text-gray-400">Capital required</span>
+              <span class="text-base font-medium text-white">{{ strategy.capital_required }}K</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2">
+            <button 
+              v-if="!isStrategyDeployed(strategy.id)"
+              @click="deployStrategy(strategy)"
+              class="w-full py-2.5 rounded-md text-sm font-medium bg-[#4A4AFF] hover:bg-[#3A3AFF] text-white transition-colors"
+            >
+              Deploy
+            </button>
+            <template v-else>
+              <button 
+                @click="removeStrategy(strategy)"
+                class="w-full py-2.5 rounded-md text-sm font-medium border border-[#4A4AFF] text-[#4A4AFF] hover:bg-[#4A4AFF] hover:text-white transition-colors"
               >
-                <!-- <div></div> -->
-                  <div class="py-1 rounded-t px-3 flex items-center cursor-pointer"
-                    :fullWidth="false"
-                    :class="[ 'capitalize',
-                      'text-nowrap',
-                      'border-b-[3px]',
-                      selectedPlan === plan.id ? 'bg-secondary border-primary'  : 'border-secondary',
-                      selectedPlan !== plan.id ? 'deactived' : '',
-                      plan.name === your_plan ? 'font-bold' : '',
-                    ]"
-                    v-for="plan, index in reorderedPlans"
-                    :key="plan.id"
-                    @click="setSelectedPlan(plan.id)"
-                  >
-                      <component v-if="plan?.icon && plan.icon.includes('Icon')" :is="plan.icon" class="w-4 h-4 mr-1" /> {{ plan.name }}
-                  </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- BEGIN: Page Layout -->
-          <!-- for table  -->
-          <template class="hidden sm:block">
-            <div class="py-2 px-[1px] rounded-lg flex flex-col justify-center border border-secondary bg-secondary ">
-              <div class="table-container text-nowrap">
-
-                <table class="mb-2 pb-5">
-                  <thead>
-                    <tr class="text-start">
-                      <th class="text-center secondaryspace-nowrap">Name</th>
-                      <th class="text-center secondaryspace-nowrap">Capital</th>
-                      <th class="text-center secondaryspace-nowrap">Risk</th>
-                      <th class="text-center secondaryspace-nowrap">Message</th>
-                      <th class="text-center secondaryspace-nowrap">Expiry Date</th>
-                      <th class="text-center secondaryspace-nowrap">Action</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    <strategyVue v-if="filteredStrategies && filteredStrategies.length > 0" v-for="(data, index) in filteredStrategies" :item="data" :key = "index" :isActive="activePlan"/>
-
-                    <tr v-else>
-                      <td colspan="6" class="text-center">No Strategies Found</td>
-                    </tr>
-                  </tbody>
-                </table>
-
-              </div>
-            </div>
-          </template>
-
-
-          <!-- for mobile device  -->    
-          <div class="visible sm:hidden">
-            <div class="flex justify-between font-bold text-sm xs:text-base bg-third text-tabletext dark:bg-primary py-3 px-4 shadow border-b dark:border-tableText dark:shadow-tabletext">
-              <div class="min-w-[190px]">Name</div>
-              <div>Capital</div>
-              <div class="">Risk</div>
-            </div>
-
-            <div class="mobile-device-table">
-              <strategyVue v-if="filteredStrategies && filteredStrategies.length > 0" v-for="(data, index) in filteredStrategies" :item="data" :key = "index" :isActive="activePlan"/>
-
-              <div v-else class="flex flex-col items-center mt-8" >
-                <div class="text-center">Strategies not found!!</div>
-              </div>
-            </div>
-              
-          </div>
-
-
-          <!-- END: Page Layout -->
-        </div>
-        <div v-else-if="!showTableData"
-              class="col-span-6 sm:col-span-3 xl:col-span-2 flex flex-col justify-end items-center">
-              <LoadingIcon icon="puff" class="w-8 h-8" />
-        </div>
-        <div v-else>
-          <div class="w-full h-full mt-8 my-4 flex flex-col justify-center items-center">
-            <div class="text-center text-xl z-10">Data Not Found</div>
+                Remove
+              </button>
+              <button 
+                disabled
+                class="w-full py-2.5 rounded-md text-sm font-medium bg-gray-700 text-gray-400 cursor-not-allowed"
+              >
+                Deployed
+              </button>
+            </template>
           </div>
         </div>
-
       </div>
-  
     </div>
   </div>
-
-
 
   <AddMatrixJoiner />
   <Message />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted,watchEffect } from "vue";
-import { storeToRefs } from "pinia";
-import strategyVue from "./strategy.vue";
-import AddMatrixJoiner from ".././matrixJoiner/addEditMatrixJoiner.vue";
-import Message from './message.vue'
+import { ref, computed } from "vue"
+import { storeToRefs } from "pinia"
 import { useStrategiesStore } from '@/stores/matrix/strategy'
-import { useProfileStore } from "@/stores/matrix/profile"; // Import your store
-const strategiesStore = useStrategiesStore();
-const profileStore = useProfileStore();
+import { useProfileStore } from "@/stores/matrix/profile"
+import { Monitor, IndianRupee } from 'lucide-vue-next'
+import AddMatrixJoiner from ".././matrixJoiner/addEditMatrixJoiner.vue"
+import Message from './message.vue'
 
-let your_plan: any = computed(() => {
-  return profileStore.profile.plan_name;
-});
+// Store initialization
+const strategiesStore = useStrategiesStore()
+const profileStore = useProfileStore()
+const { strategies, plans, stratgyJoinedPlans } = storeToRefs(strategiesStore)
 
-const { strategies, plans } = storeToRefs(strategiesStore);
-let filteredStrategies: any = [];
-let activePlan = false;
-let filteredPlans = ref<Array<{ key: string, value: string }>>([]);
+// Available trading symbols (without ALL)
+const availableSymbols = ['NIFTY', 'BANKNIFTY', 'STOCKS', 'SENSEX']
 
-
-watchEffect(() => {
-  if (plans.value && plans.value.length > 0) {
-    filteredPlans.value = plans.value
+// Filter state with ALL symbol enabled by default
+const filters = ref({
+  all: true,
+  myStrategies: false,
+  otherStrategies: false,
+  symbols: {
+    ALL: true,
+    ...availableSymbols.reduce((acc, symbol) => {
+      acc[symbol] = false
+      return acc
+    }, {} as Record<string, boolean>)
   }
 })
 
-const dropdownOptions = computed<any>(() => {
-  if (plans.value.length > 0) {
-    return plans.value.map((plan: any) => {
-      return {
-        id: plan.id,
-        label: `${plan.name}`,
-        icon: plan.icon
-      };
-    });
+// Handle "All Strategies" checkbox change
+const handleAllChange = () => {
+  if (filters.value.all) {
+    filters.value.myStrategies = false
+    filters.value.otherStrategies = false
   }
-  return []
-})
+}
 
-let selectedPlan = ref(0);
-
-watchEffect(() => {
-  if (plans.value.length > 0 && your_plan.value) {
-    selectedPlan.value= plans.value.filter((plan: any) => plan.name == your_plan.value)[0].id;
+// Handle strategy type checkbox changes
+const handleStrategyTypeChange = () => {
+  if (filters.value.myStrategies || filters.value.otherStrategies) {
+    filters.value.all = false
   }
-})
-
-
-
-filteredStrategies = computed(() => {
-  const selectedPlanData = plans.value.find(
-    (plan: any) => plan.id.toString() === selectedPlan.value.toString()
-  );
-  if (selectedPlanData && selectedPlanData.name === your_plan.value) {
-    activePlan = true;
-  } else {
-    activePlan = false;
+  
+  if (!filters.value.myStrategies && !filters.value.otherStrategies) {
+    filters.value.all = true
   }
-  if (selectedPlanData && selectedPlanData.strategies) {
-    return strategies.value.filter((strategy: any) =>{
-      return selectedPlanData.strategies.hasOwnProperty(strategy.id.toString())
+}
+
+// Handle "All Symbols" checkbox change
+const handleSymbolAllChange = () => {
+  if (filters.value.symbols.ALL) {
+    // If ALL is checked, uncheck all other symbols
+    availableSymbols.forEach(symbol => {
+      filters.value.symbols[symbol] = false
     })
-  } else {
-    return [];
   }
-});
+}
 
+// Handle individual symbol checkbox changes
+const handleSymbolChange = () => {
+  // If any individual symbol is checked, uncheck ALL
+  const hasIndividualSelection = availableSymbols.some(symbol => filters.value.symbols[symbol])
+  if (hasIndividualSelection) {
+    filters.value.symbols.ALL = false
+  }
+  
+  // If no individual symbols are checked, check ALL
+  const noSymbolsSelected = availableSymbols.every(symbol => !filters.value.symbols[symbol])
+  if (noSymbolsSelected) {
+    filters.value.symbols.ALL = true
+  }
+}
 
-let reorderedPlans: any=[];
-reorderedPlans = computed(() => {
-  if (filteredPlans.value && filteredPlans.value.length === 0) {
-    return [];
-  } else {
-    const centerPlanIndex = Math.floor(filteredPlans.value.length / 2);
-    let plansCopy = [...filteredPlans.value] || filteredPlans.value;
+// Check if strategy is deployed
+const isStrategyDeployed = (strategyId: number) => {
+  return stratgyJoinedPlans.value.some((joined: any) => joined.strategy_id === strategyId)
+}
 
-    const yourPlanIndex = plansCopy.findIndex((plan: any) => plan.name === your_plan.value);
-    if (yourPlanIndex !== -1) {
-      const [yourPlan] = plansCopy.splice(yourPlanIndex, 1);
-      plansCopy.splice(centerPlanIndex, 0, yourPlan);
+// Get user ID for filtering
+const userId = computed(() => profileStore.profile?.id)
+
+// Filtered strategies based on all filters
+const filteredStrategies = computed(() => {
+  let filtered = [...strategies.value]
+
+  // Apply strategy type filters
+  if (!filters.value.all) {
+    if (filters.value.myStrategies) {
+      filtered = filtered.filter(strategy => strategy.user_id === userId.value)
     }
-
-    return plansCopy;
+    if (filters.value.otherStrategies) {
+      filtered = filtered.filter(strategy => strategy.user_id !== userId.value)
+    }
+    if (!filters.value.myStrategies && !filters.value.otherStrategies) {
+      filtered = []
+    }
   }
-});
 
-const showTableData = computed<boolean>(() => {
-    const state = strategiesStore.state[strategiesStore.endpoint];
-    return state && state.loading === false;
-});
+  // Apply symbol filters
+  if (!filters.value.symbols.ALL) {
+    filtered = filtered.filter(strategy => 
+      Object.entries(filters.value.symbols)
+        .some(([symbol, isSelected]) => 
+          symbol !== 'ALL' && isSelected && strategy.script === symbol
+        )
+    )
+  }
 
+  return filtered
+})
 
-const setSelectedPlan = (plan: any) => {
-  selectedPlan.value = plan;
-};
+// Get symbol class for styling
+const getSymbolClass = (symbol: string) => {
+  const symbolClasses: Record<string, string> = {
+    'NIFTY': 'bg-[#8B5E34] text-white',
+    'BANKNIFTY': 'bg-[#4A4AFF] text-white',
+    'STOCKS': 'bg-[#2E7D32] text-white',
+    'SENSEX': 'bg-[#D32F2F] text-white'
+  }
+  return symbolClasses[symbol] || 'bg-gray-600 text-white'
+}
+
+// Handle strategy deployment
+const deployStrategy = async (strategy: any) => {
+  try {
+    await strategiesStore.addEditMatrixJoiner(0, {
+      strategy_id: strategy.id,
+      is_deployed: true,
+      is_active: true
+    })
+    await strategiesStore.getStrategies()
+  } catch (error) {
+    console.error('Failed to deploy strategy:', error)
+  }
+}
+
+// Handle strategy removal
+const removeStrategy = async (strategy: any) => {
+  try {
+    const joinedStrategy = stratgyJoinedPlans.value.find(
+      (joined: any) => joined.strategy_id === strategy.id
+    )
+    if (joinedStrategy) {
+      await strategiesStore.deleteMatrixJoiner(joinedStrategy.id)
+      await strategiesStore.getStrategies()
+    }
+  } catch (error) {
+    console.error('Failed to remove strategy:', error)
+  }
+}
+
+// Handle strategy activation/deactivation
+const handleStrategyToggle = async (strategy: any) => {
+  if (!isStrategyDeployed(strategy.id)) return
+
+  try {
+    const joinedStrategy = stratgyJoinedPlans.value.find(
+      (joined: any) => joined.strategy_id === strategy.id
+    )
+    if (joinedStrategy) {
+      strategy.is_active = !strategy.is_active
+      await strategiesStore.addEditMatrixJoiner(joinedStrategy.id, {
+        is_active: strategy.is_active
+      })
+      await strategiesStore.getStrategies()
+    }
+  } catch (error) {
+    console.error('Failed to update strategy:', error)
+    strategy.is_active = !strategy.is_active
+  }
+}
+
+// Initialize data
+strategiesStore.getStrategies()
 </script>
 
-<style >
-.deactived{    --tw-border-opacity: 1;
-    border-bottom-color:rgb(var(--color-primary) / 0) !important;}
-.actived{    --tw-border-opacity: 1;
-    border-bottom-color: rgb(var(--color-primary) / var(--tw-border-opacity)) !important;
-    font-weight: 500;
-    --tw-text-opacity: 1;
-}
-
-.mobile-device-table{
+<style scoped>
+.mobile-device-table {
   @apply h-[calc(100vh-194px)] w-full overflow-scroll;
 }
-
 </style>

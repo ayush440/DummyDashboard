@@ -1,105 +1,134 @@
 <template>
-  <div class="w-full h-full md:h-full bg-[third]">
-    <div class="mt-5  ml-2 mr-2 sm:ml-4 sm:mr-4  rounded-lg flex flex-col justify-center border border-secondary bg-secondary ">
-      <div class="flex flex-wrap sm:flex-nowrap justify-between border-b border-third shadow shadow-third items-center px-1 sm:px-4 h-14">
-          <div class="flex px-1 dark:text-tableText text-lg font-semibold">
-              Today's Profit :&nbsp; 
-                <TotalProfit greenColor = "text-green-600" />
-          </div>
-        
-        <div class="flex sm:w-auto justify-between items-center">
-          <div class="font-semibold text-gray-700 dark:text-tableText mr-1 sm:mr-2">
-            {{ positions.length }}  Positions
-          </div>
-        </div>
+  <div class="min-h-screen bg-[#1C1C1C] p-6">
+    <!-- Header Section with Filters -->
+    <div class="flex justify-between items-center mb-6">
+      <div class="relative">
+        <input
+          type="text"
+          placeholder="Search"
+          v-model="searchQuery"
+          class="w-64 bg-[#2A2A2C] text-white pl-10 pr-4 py-2 rounded-md border border-gray-700 focus:outline-none focus:border-[#7C3AED]"
+        />
+        <SearchIcon class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
       </div>
 
-      <div class="hidden sm:block">
-        <div class="table-container text-nowrap">
-          <table class="mb-2 pb-5">
-            <thead>
-              <tr class="text-start">
-                <th class="text-center whitespace-nowrap">Strategy</th>
-                <th v-if="profile && profile.user_role !== 'Paper'" class="text-center whitespace-nowrap">Broker</th>
-                <th class="text-center whitespace-nowrap">Script</th>
-                <th class="text-center whitespace-nowrap">Product</th>
-                <th class="text-center whitespace-nowrap">Side</th>
-                <th class="text-center whitespace-nowrap">Quantity</th>
-                <th class="text-center whitespace-nowrap">Buy Price</th>
-                <th class="text-center whitespace-nowrap">Sell Price</th>
-                <th class="text-center whitespace-nowrap">Position Status</th>
-                <th class="text-center whitespace-nowrap">P&L</th>
-                <th v-if="profile && profile.user_role !== 'Paper'" class="text-center whitespace-nowrap">ACTIONS</th>
-              </tr>
-            </thead>
+      <div class="flex items-center gap-4 text-gray-400">
+        <span>Showing position type:</span>
+        <div class="flex gap-3">
+          <label class="flex items-center gap-2 cursor-pointer" @click.stop>
+            <input 
+              type="checkbox" 
+              v-model="filters.all" 
+              @change="handleFilterChange('all')"
+              class="form-checkbox rounded bg-transparent border-gray-600 text-[#7C3AED]" 
+            />
+            <span>All</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer" @click.stop>
+            <input 
+              type="checkbox" 
+              v-model="filters.open"
+              @change="handleFilterChange('open')"
+              class="form-checkbox rounded bg-transparent border-gray-600 text-[#7C3AED]" 
+            />
+            <span>Open</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer" @click.stop>
+            <input 
+              type="checkbox" 
+              v-model="filters.closed"
+              @change="handleFilterChange('closed')"
+              class="form-checkbox rounded bg-transparent border-gray-600 text-[#7C3AED]" 
+            />
+            <span>Closed</span>
+          </label>
+        </div>
+      </div>
+    </div>
 
-            <tbody>
-              <template v-if="profile && profile.user_role !== 'Paper'">
-                <template v-if="(showTableData && positions.length > 0) || (showManualTableData && manualPositions.length > 0)">
-                  <positionRow v-if="showTableData && mergedPositions.length > 0" v-for="position in mergedPositions" :item="position" :key="position.id" />
-                </template>
-                <div v-else-if="!showTableData || !showManualTableData"
-                  class="col-span-6 sm:col-span-3 xl:col-span-2 flex flex-col justify-end items-center">
-                  <LoadingIcon icon="puff" class="w-8 h-8" />
+    <!-- Table -->
+    <div class="bg-[#2A2A2C] rounded-lg overflow-hidden">
+      <table class="w-full">
+        <thead>
+          <tr class="text-gray-400 text-sm border-b border-gray-700">
+            <th class="py-4 px-6 text-left">Strategy</th>
+            <th class="py-4 px-6 text-left">Side</th>
+            <th class="py-4 px-6 text-center">QTY</th>
+            <th class="py-4 px-6 text-right">PNL</th>
+            <th class="py-4 px-6 text-center">Status</th>
+            <th class="py-4 px-6 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="position in filteredPositions" :key="position.id">
+            <tr>
+              <!-- Main Row -->
+              <td 
+                colspan="6" 
+                class="p-0"
+                @click="toggleExpand(position.id)"
+              >
+                <div class="grid grid-cols-6 cursor-pointer hover:bg-gray-700/20 transition-colors">
+                  <div class="py-4 px-6">{{ position.strategy?.name || 'Multidisciplinary' }}</div>
+                  <div class="py-4 px-6">{{ position.side }}</div>
+                  <div class="py-4 px-6 text-center">{{ position.quantity }}/25</div>
+                  <div class="py-4 px-6 text-right" :class="calculatePnL(position) >= 0 ? 'text-green-400' : 'text-red-400'">
+                    {{ calculatePnL(position) >= 0 ? '+' : '' }}{{ calculatePnL(position) }}
+                  </div>
+                  <div class="py-4 px-6 text-center">
+                    <span 
+                      class="px-3 py-1 rounded-full text-xs font-medium"
+                      :class="position.status === 'OPEN' ? 'bg-green-400/20 text-green-400' : 'bg-red-400/20 text-red-400'"
+                    >
+                      {{ position.status.toLowerCase() }}
+                    </span>
+                  </div>
+                  <div class="py-4 px-6 text-right">
+                    <button
+                      v-if="position.status === 'OPEN'"
+                      @click.stop="openSquareOffModal(position)"
+                      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#7C3AED]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20 transition-colors"
+                    >
+                      <span>Square Off</span>
+                      <ChevronDownIcon class="w-4 h-4" :class="{'rotate-180': expandedRow === position.id}" />
+                    </button>
+                    <span v-else class="text-gray-500 text-sm">
+                      Closed at {{ new Date(position.updated_at).toLocaleTimeString() }}
+                    </span>
+                  </div>
                 </div>
-                <tr v-else>
-                    <td class="text-center">
-                        Data not found!!
-                    </td>
-                </tr>
-              </template>
-
-              <template v-else>
-                  <paperTradeRow v-if="showPaperPositions && paperPositions.length > 0" v-for="position in paperPositions" :item="position" :key="position.id" />
-                    <div v-else-if="!showPaperPositions"
-                      class="col-span-6 sm:col-span-3 xl:col-span-2 flex flex-col justify-end items-center">
-                      <LoadingIcon icon="puff" class="w-8 h-8" />
-                    </div>
-                    <tr v-else>
-                        <td class="text-center">
-                            Data not found!!
-                        </td>
-                    </tr>
-              </template> 
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- for mobile device  -->    
-      <div class="visible sm:hidden">
-        <div class="flex justify-between font-bold text-sm xs:text-base bg-third text-tabletext dark:bg-primary py-3 px-4 shadow dark:shadow-tabletext">
-            <div>Trading Symbol	</div>
-            <div class="">Quantity</div>
-            <div>P&L</div>
-        </div>
-
-        <div class="mobile-device-table">
-          <template v-if="profile && profile.user_role !== 'Paper'">
-            <template v-if="(showTableData && positions.length > 0) || (showManualTableData && manualPositions.length > 0)">
-              <positionRow v-if="showTableData && mergedPositions.length > 0" v-for="position in mergedPositions" :item="position" :key="position.id" />
-            </template>
-            <div v-else-if="!showTableData || !showManualTableData"
-              class="flex">
-              <LoadingIcon icon="puff" class="w-8 h-8" />
-            </div>
-            <div v-else class="flex flex-col items-center mt-8" >
-              <div class="text-center">Data not found!!</div>
-            </div>
+              </td>
+            </tr>
+            <!-- Expanded Details Row -->
+            <tr v-if="expandedRow === position.id" class="bg-[#1C1C1C] border-t border-gray-700/50">
+              <td colspan="6" class="py-4">
+                <div class="grid grid-cols-5 px-6 gap-x-4 text-sm">
+                  <div class="py-3">
+                    <div class="text-gray-400 mb-1">Script</div>
+                    <div class="text-white">{{ position.strategy?.script || 'Nifty36FDWTE72' }}</div>
+                  </div>
+                  <div class="py-3">
+                    <div class="text-gray-400 mb-1">Broker</div>
+                    <div class="text-white">{{ position.broker?.broker_name || 'DHAN2DS2E28G' }}</div>
+                  </div>
+                  <div class="py-3">
+                    <div class="text-gray-400 mb-1">Buy price</div>
+                    <div class="text-white">₹{{ position.buy_price }} ({{ formatTime(position.buy_time) }})</div>
+                  </div>
+                  <div class="py-3">
+                    <div class="text-gray-400 mb-1">Sell price</div>
+                    <div class="text-white">₹{{ position.sell_price }} ({{ formatTime(position.sell_time) }})</div>
+                  </div>
+                  <div class="py-3">
+                    <div class="text-gray-400 mb-1">LTP</div>
+                    <div class="text-white">{{ getLtp(position) }}</div>
+                  </div>
+                </div>
+              </td>
+            </tr>
           </template>
-
-          <template v-else>
-              <paperTradeRow v-if="showPaperPositions && paperPositions.length > 0" v-for="position in paperPositions" :item="position" :key="position.id" />
-                <div v-else-if="!showPaperPositions"
-                  class="flex">
-                  <LoadingIcon icon="puff" class="w-8 h-8" />
-                </div>
-                <div v-else class="flex flex-col items-center mt-8" >
-                  <div class="text-center">Data not found!!</div>
-                </div>
-          </template> 
-        </div>
-      </div>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -108,119 +137,86 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
+import { SearchIcon, ChevronDownIcon } from 'lucide-vue-next'
 import { usePositionsStore } from '@/stores/matrix/position'
 import { useManualPositionsStore } from '@/stores/groups/manualPosition'
-import TotalProfit from '@/stores/utils/totalpnl.vue'
-import sqOffPosition from './sqOffPosition.vue'
-import sqoffManual  from './sqoffManual.vue'
-import positionRow from './positionRow.vue'
-import paperTradeRow from './paperTradeRow.vue'
-import { useProfileStore } from '@/stores/matrix/profile';
-import { usePaperPositionsStore } from "@/stores/matrix/paperPositions";
+import { useProfileStore } from '@/stores/matrix/profile'
+import { usePaperPositionsStore } from "@/stores/matrix/paperPositions"
 import { useTickerStore } from '@/stores/matrix/ticker/ticker'
+import sqOffPosition from './sqOffPosition.vue'
+import sqoffManual from './sqoffManual.vue'
 
-const profileStore = useProfileStore();
-const { profile } = storeToRefs(profileStore);
-
-const paperPositionsStore = usePaperPositionsStore();
+// Store references
+const profileStore = useProfileStore()
 const positionsStore = usePositionsStore()
 const manualPositionsStore = useManualPositionsStore()
+const paperPositionsStore = usePaperPositionsStore()
 const tickerStore = useTickerStore()
 
-// define interface to ignore type warning error
-interface Position {
-  id: number
-  serialNo: string
-  tradingsymbol: string
-  strategy_id: number
-  broker_id: number
-  broker: {
-    id: number
-    broker_name: string
+// State
+const searchQuery = ref('')
+const expandedRow = ref<number | null>(null)
+const filters = ref({
+  all: true,
+  open: false,
+  closed: false
+})
+
+// Store state
+const { profile } = storeToRefs(profileStore)
+const { positions } = storeToRefs(positionsStore)
+const { manualPositions } = storeToRefs(manualPositionsStore)
+const { paperPositions } = storeToRefs(paperPositionsStore)
+const { showSqOffModal } = storeToRefs(positionsStore)
+
+// Methods
+function handleFilterChange(type: 'all' | 'open' | 'closed') {
+  if (type === 'all') {
+    filters.value.open = false
+    filters.value.closed = false
+  } else {
+    filters.value.all = false
   }
-  user: {
-    id: number
-    name: string
-  }
-  strategy: {
-    id: number
-    name: string
-    script: string
-    color: string
-    image_url: string
-  }
-  product: string
-  quantity: number
-  side: string
-  buy_price: number
-  sell_price: number
-  created_at: string
-  updated_at: string
-  exchange: string
-  status: string
-  instrument_token: number
 }
 
-const positions = computed<Position[]>(() => {
-  return positionsStore.positions.map((pos:Position, index: number) => ({
-    ...pos,
-    serialNo: `position-${index}`
-  }));
-})
+function toggleExpand(positionId: number) {
+  expandedRow.value = expandedRow.value === positionId ? null : positionId
+}
 
-const manualPositions = computed<Position[]>(() => {
-  return manualPositionsStore.manualPositions.map((pos: Position, index: number) => ({
-    ...pos,
-    serialNo: `manualPosition-${index}`
-  }));
-})
+function openSquareOffModal(position: any) {
+  showSqOffModal.value = true
+  positionsStore.selectedPosition = position
+}
 
-const mergedPositions = computed<Position[]>(() => {
-  const allPositions: Position[] = [...positions.value, ...manualPositions.value];
-  if(!allPositions.length) {
-    return [];
+// Computed
+const filteredPositions = computed(() => {
+  let filtered = [...positions.value, ...manualPositions.value]
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(position => 
+      position.strategy?.name?.toLowerCase().includes(query) ||
+      position.broker?.broker_name?.toLowerCase().includes(query)
+    )
   }
-  // Sort positions by updated_at in descending order
-  return allPositions.sort((a, b) => {
-    const dateA = new Date(a.updated_at).getTime();
-    const dateB = new Date(b.updated_at).getTime();
-    return dateB - dateA;
-  });
-});
 
-const showTableData = computed<boolean>(() => {
-    const state = positionsStore.state[positionsStore.endpoint];
-    return true;
-});
+  if (!filters.value.all) {
+    if (filters.value.open) filtered = filtered.filter(p => p.status === 'OPEN')
+    if (filters.value.closed) filtered = filtered.filter(p => p.status === 'CLOSED')
+  }
 
-const showManualTableData = computed<boolean>(() => {
-    const state = manualPositionsStore.state[manualPositionsStore.endpoint];
-    return  true;
+  return filtered
 })
-
-const paperPositions = computed<Position[]>(() => {
-  const allPositions: Position[] = paperPositionsStore.paperPositions;
-
-  return allPositions.sort((a, b) => {
-    const dateA = new Date(a.updated_at).getTime();
-    const dateB = new Date(b.updated_at).getTime();
-    return dateB - dateA;
-  });
-})
-
-const showPaperPositions = computed<boolean>(() => {
-  const state = paperPositionsStore.state[paperPositionsStore.endpoint];
-  return  true;
-});
 
 function getLtp(position: any) {
   const ltp = tickerStore.getLastPrice(position.instrument_token)
   return ltp || position.last_price
 }
 
-function calculatePnL(position: Position) {
+function calculatePnL(position: any) {
   const ltp = getLtp(position)
   let pnl = 0
 
@@ -236,29 +232,21 @@ function calculatePnL(position: Position) {
     }
   }
 
-  return pnl
+  return pnl.toFixed(2)
+}
+
+function formatTime(time: string) {
+  if (!time) return '09:20AM'
+  return new Date(time).toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  })
 }
 </script>
 
-<style scoped lang="scss">
-.pencil-background {
-    border-radius: 100px;
-    border: 1px solid rgb(var(--color-primary));
-    width: 300px;
-    height: 60px;
-    background: linear-gradient(to right, rgb(var(--color-primary)) , rgb(var(--color-third)));
-    clip-path: polygon(0 19%, 87% 20%, 87% 20%, 100% 54%, 87% 82%, 87% 82%, 0% 80%);
-    transition: 0.5s;
-}
-
-.dark .pencil-background {
-  background: linear-gradient(to right, #000, rgb(var(--color-primary)));
-}    
-.profit:hover .pencil-background{
-    width: 320px;
-} 
-
-.mobile-device-table{
-  @apply h-[calc(100vh-209px)] w-full overflow-y-scroll;
+<style scoped>
+.form-checkbox {
+  @apply rounded border-gray-600 text-[#7C3AED] focus:ring-[#7C3AED] focus:ring-offset-0 focus:ring-offset-transparent;
 }
 </style>

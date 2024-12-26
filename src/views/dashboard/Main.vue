@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full bg-[#1a1a1a] min-h-screen">
+  <div class="relative w-full bg-[#2a2a2c] min-h-screen">
     <div class="px-6 py-6">
       <!-- Header -->
       <div class="flex items-center justify-between mb-6">
@@ -12,7 +12,7 @@
         <!-- Left Section - Stats Cards -->
         <div class="col-span-4 grid grid-cols-2 gap-4">
           <!-- Total Orders -->
-          <div class="bg-[#242424] p-4 rounded-lg">
+          <div class="bg-[#1d1d20] p-4 rounded-lg">
             <div class="flex flex-col gap-2">
               <div class="w-8 h-8">
                 <ShoppingBagIcon class="w-8 h-8 text-[#8b5cf6]" />
@@ -25,7 +25,7 @@
           </div>
 
           <!-- Strategy Deployed -->
-          <div class="bg-[#242424] p-4 rounded-lg">
+          <div class="bg-[#1d1d20] p-4 rounded-lg">
             <div class="flex flex-col gap-2">
               <div class="w-8 h-8">
                 <PieChartIcon class="w-8 h-8 text-[#8b5cf6]" />
@@ -38,7 +38,7 @@
           </div>
 
           <!-- Brokers -->
-          <div class="bg-[#242424] p-4 rounded-lg">
+          <div class="bg-[#1d1d20] p-4 rounded-lg">
             <div class="flex flex-col gap-2">
               <div class="w-8 h-8">
                 <DiamondIcon class="w-8 h-8 text-[#8b5cf6]" />
@@ -51,14 +51,14 @@
           </div>
 
           <!-- Social Media -->
-          <div class="bg-[#242424] p-4 rounded-lg">
+          <div class="bg-[#1d1d20] p-4 rounded-lg">
             <div class="flex flex-col gap-2">
               <div class="w-8 h-8">
                 <BrandTelegramIcon class="w-8 h-8 text-[#8b5cf6]" />
               </div>
               <div>
                 <h3 class="text-2xl font-bold text-white">
-                  <a href="#" class="hover:text-[#8b5cf6] transition-colors">Connect</a>
+                  <a href="#" class="hover:text-white transition-colors">Connect</a>
                 </h3>
                 <p class="text-sm text-gray-400">Social media</p>
               </div>
@@ -68,14 +68,14 @@
 
         <!-- Right Section - Profit Chart -->
         <div class="col-span-8">
-          <div class="bg-[#242424] rounded-lg p-6">
+          <div class="bg-[#1d1d20] rounded-lg p-6">
             <div class="flex gap-8">
               <!-- Donut Chart with Animation -->
               <div class="relative w-[300px] h-[300px] ml-36  animate-slide-in-left">
                 <canvas ref="profitChart" class="donut-chart"></canvas>
                 <div class="absolute inset-0 flex items-center justify-center">
                   <div class="text-center">
-                    <p class="text-sm text-gray-400">Profit</p>
+                    <p class="text-sm text-white font-bold ">Profit</p>
                     <p class="text-xl font-bold text-green-400">
                       {{ formatPnL(combinedTotalPnL) }}
                     </p>
@@ -109,12 +109,12 @@
     </div>
 
     <!-- Positions Table -->
-    <div class="bg-[#242424] rounded-lg mx-6">
+    <div class="bg-[#1d1d20] rounded-lg mx-6">
       <div class="p-4 sm:p-6 border-b">
         <div class="flex justify-between items-center">
           <h2 class="text-lg text-gray-500 font-semibold">Positions</h2>
           <RouterLink to="/positions" 
-                    class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2">
+                    class="text-sm text-gray-500 hover:text-white flex items-center gap-2">
             All
             <ArrowRightIcon class="w-4 h-4" />
           </RouterLink>
@@ -124,13 +124,13 @@
         <positionTable :positions="displayedPositions.slice(0, maxDisplayedPositions)" :mode="isTabActive" />
       </div>
       <div v-if="displayedPositions.length > maxDisplayedPositions" class="p-4 text-center">
-        <button @click="openPositionsSidebar" class="text-blue-600 hover:text-blue-800">
+        <button @click="openPositionsSidebar" class="text-blue-600 hover:white">
           View More
         </button>
       </div>
     </div>
   </div>
-  <sqOffPosition />
+  <!-- <sqOffPosition /> -->
   <sqoffManual />
   <SideBar2 
     :isOpen="isSidebarOpen" 
@@ -466,8 +466,8 @@ const brokersToken = computed(() => {
 
 @media (max-width: 640px) {
   .donut-chart {
-    height: 140px;
-    max-width: 140px;
+    height: 100%;
+    max-width: 100%;
   }
 
   .legend-wrapper {

@@ -26,8 +26,8 @@
       <RouterLink to="/" class="relative flex items-center justify-center w-16 sm:w-20 xl:w-[233px] h-16 xl:h-[70px] overflow-hidden">
         <!-- Desktop Image (xl screens and above) -->
         <img 
-          src="@/assets/img/hifilogo.png" 
-          alt="HiFi Logo Desktop"
+          src="" 
+          alt=" Logo Here"
           class="hidden xl:block w-full h-full max-h-20 object-contain"
         />
 

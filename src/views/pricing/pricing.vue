@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen bg-[#2a2a2c] text-white">
       <!-- Breadcrumb -->
-      <div class="flex items-center gap-2 text-gray-400 px-6 py-3">
+      <div class="flex items-center gap-2 text-gray-400 p-6">
         <a href="/" class="hover:text-white">Home</a>
         <span>›</span>
         <span>Pricing</span>

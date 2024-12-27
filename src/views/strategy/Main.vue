@@ -1,5 +1,12 @@
 <template>
+  
   <div class="w-full h-full md:h-full bg-[#2a2a2c]">
+    <nav class="flex items-center gap-2 text-gray-400 p-6">
+      <span>Home</span>
+      <span class="text-gray-600">›</span>
+      <span>Strategy</span>
+    </nav>
+    <h1 class="text-white text-2xl ml-8">Strategy</h1>
     <div class="flex flex-col rounded-lg ml-2 mr-2 sm:ml-4 sm:mr-4 mt-2">
       <!-- Filters Container -->
       <div class="flex justify-between items-start p-4">

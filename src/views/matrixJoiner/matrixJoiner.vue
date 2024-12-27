@@ -1,132 +1,167 @@
 <template>
-    <div class="w-full h-full md:h-full bg-third">
-      <div class="mt-5 ml-2 mr-2 sm:ml-4 sm:mr-4 rounded-lg flex flex-col justify-center border border-secondary bg-secondary  ">
-        <div class="flex flex-wrap sm:flex-nowrap justify-end sm:justify-between items-center border-b border-third shadow shadow-third px-1 sm:px-4 h-14 ">
-          <div class="flex sm:w-auto justify-between items-center">
-            <div class="font-semibold text-gray-700 dark:text-tableText mr-1 sm:mr-2">
-            {{ matrixJoiners.length }} Strategy Joined
-            </div>
-          </div>
-        </div>
+  <div class="min-h-screen bg-[#2a2a2c] text-white p-6">
+    <nav class="flex items-center gap-2 text-gray-400 mb-6">
+      <span>Home</span>
+      <span class="text-gray-600">›</span>
+      <span>My Strategies</span>
+    </nav>
 
-        <div class="hidden sm:block">
-          <div class="table-container text-nowrap ">
-            <table class="mb-2 pb-5">
-              <thead>
-                <tr class="text-start">
-                  <!-- <th class="text-center whitespace-nowrap">Joiner Id</th> -->
-                  <th class="text-center whitespace-nowrap">Strategy</th>
-                  <th class="text-center whitespace-nowrap">Broker</th>
-                  <!-- <th class="text-center whitespace-nowrap">User</th> -->
-                  <th class="text-center whitespace-nowrap">Lot Size</th>
-                  <th class="text-center whitespace-nowrap">ReEntry</th>
-                  <th class="text-center whitespace-nowrap">ReEntry Triggered</th>
-                  <th class="text-center whitespace-nowrap">Active</th>
-                  <th class="text-center whitespace-nowrap">Joined At</th>
-                  <th class="text-center whitespace-nowrap">ACTIONS</th>
-                </tr>
-              </thead>
-
-              <tbody>
-
-                <matrixJoinerRow v-if="matrixJoiners.length > 0" v-for="matrixJoiner, i in matrixJoiners" :key="i"
-                  :item="matrixJoiner"
-                />
-
-                <div v-else-if="!showTableData"
-                  class="col-span-6 sm:col-span-3 xl:col-span-2 flex flex-col justify-end items-center">
-                  <LoadingIcon icon="puff" class="w-8 h-8" />
-                </div>
-
-                <div v-else class="flex flex-col items-center mt-8" >
-                  <div class="text-center"> Data not found!!</div>
-                </div>
-                
-              </tbody>
-            </table>
-
-          </div>
-        </div>
-
-
-
-
-
-
-        <!-- for mobile device  -->    
-        <div class="visible sm:hidden">
-          <div class="flex justify-between font-bold text-sm xs:text-base bg-third text-tabletext dark:bg-primary py-3 px-4 shadow dark:shadow-tabletext">
-              <div class="min-w-[100px]">Strategy</div>
-              <div>Lot Size</div>
-              <div class="">Active</div>
-          </div>
-
-          <div class="mobile-device-table">
-            <matrixJoinerRow v-if="matrixJoiners.length > 0" v-for="matrixJoiner, i in matrixJoiners" :key="i"
-              :item="matrixJoiner"
-            />
-
-            <div v-else-if="!showTableData" class="flex">
-              <LoadingIcon icon="puff" class="w-8 h-8" />
-            </div>
-
-            <div v-else class="flex flex-col items-center mt-8" >
-              <div class="text-center">Joiners not found!!</div>
-            </div>
-          </div>
-        </div>
-
-
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="text-2xl ">My Strategies</div>
       </div>
+      
+      <!-- Search and Filter Bar -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4  bg-[#1d1d20] p-4 rounded-t-lg">
+        <div class="relative w-full sm:w-64">
+          <input 
+            type="search" 
+            placeholder="Search" 
+            class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-700"
+          />
+          <SearchIcon class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <span class="text-gray-400">Showing My Strategies type:</span>
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="form-checkbox bg-[#262626] border-gray-700 rounded text-[#7C3AED]" />
+              <span>Active</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="form-checkbox bg-[#262626] border-gray-700 rounded text-[#7C3AED]" />
+              <span>Inactive</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto bg-[#1d1d20] rounded-b-lg">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left border-b border-gray-700">
+              <th class="py-3 px-4 text-gray-400 font-medium">Strategy</th>
+              <th class="py-3 px-4 text-gray-400 font-medium">Broker</th>
+              <th class="py-3 px-4 text-gray-400 font-medium">Lot size</th>
+              <th class="py-3 px-4 text-gray-400 font-medium">ReEntry</th>
+              <th class="py-3 px-4 text-gray-400 font-medium">ReEntry Triggered</th>
+              <th class="py-3 px-4 text-gray-400 font-medium">Active</th>
+              <th class="py-3 px-4 text-gray-400 font-medium">Joined at</th>
+              <th class="py-3 px-4 text-gray-400 font-medium">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="matrixJoiner in matrixJoiners" :key="matrixJoiner.id" class="border-b border-gray-800">
+              <td class="py-4 px-4">
+                <div class="flex items-center gap-2">
+                  <component 
+                    v-if="containsIcon(matrixJoiner)"
+                    :is="matrixJoiner.strategy.image_url" 
+                    class="h-5 w-5"
+                    :style="{ color: matrixJoiner.strategy.color }"
+                  />
+                  <span>{{ `${matrixJoiner.strategy.name}(${matrixJoiner.strategy.script})` }}</span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex items-center gap-2">
+                  <img 
+                    v-if="matrixJoiner.broker" 
+                    :src="images[matrixJoiner.broker.broker_name]" 
+                    class="h-5 w-5"
+                  />
+                  <span>{{ `${matrixJoiner.broker.broker_name} (${matrixJoiner.broker.broker_userid})` }}</span>
+                </div>
+              </td>
+              <td class="py-4 px-4">{{ matrixJoiner.lots }}</td>
+              <td class="py-4 px-4">{{ matrixJoiner.re_entry }}</td>
+              <td class="py-4 px-4">{{ matrixJoiner.re_entry_triggered }}</td>
+              <td class="py-4 px-4">
+                <ButtonSwitch 
+                  v-model="matrixJoiner.is_active"
+                  @change="() => handleActiveChange(matrixJoiner)"
+                />
+              </td>
+              <td class="py-4 px-4">{{ formatDate(matrixJoiner.created_at) }}</td>
+              <td class="py-4 px-4">
+                <div class="flex items-center gap-3">
+                  <button 
+                    @click="showEdit(matrixJoiner)"
+                    class="flex items-center gap-1 text-gray-400 hover:text-white"
+                  >
+                    <PencilIcon class="h-4 w-4" />
+                    <span>Edit</span>
+                  </button>
+                  <button 
+                    @click="deleteModal(matrixJoiner.id)"
+                    class="flex items-center gap-1 text-gray-400 hover:text-red-500"
+                  >
+                    <TrashIcon class="h-4 w-4" />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+
     </div>
+  </div>
   <AddEditMatrixJoiner />
   <DeleteMatrixJoiner />
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useMatrixJoinersStore } from '@/stores/matrix/matrixJoiner'
-
-
+import { SearchIcon, PencilIcon, TrashIcon } from 'lucide-vue-next'
+import { images } from '@/assets/img'
 import AddEditMatrixJoiner from './addEditMatrixJoiner.vue'
 import DeleteMatrixJoiner from './deleteMatrixJoiner.vue'
-import matrixJoinerRow from './matrixJoinerRow.vue'
+
+
 const matrixJoinersStore = useMatrixJoinersStore()
+const { showAddEditModal, addEditMatrixJoinerData, showDeleteConfirmationModal, idForDelete } = storeToRefs(matrixJoinersStore)
+const { addEditMatrixJoiner } = matrixJoinersStore
 
-
-
-// define interface to ignore type warning error
-interface MatrixJoiner {
-  id: number
-  strategy_id: number
-  broker_id: number
-  broker: any
-  user: any
-  strategy: any
-  quantity: number
-  re_entry: number
-  re_entry_triggered: number
-  is_active: boolean
-  created_at: string
-}
-const matrixJoiners = computed<MatrixJoiner[]>(() => {
+const matrixJoiners = computed(() => {
   return matrixJoinersStore.matrixJoiners.sort((a: any, b: any) => b.id - a.id)
 })
 
-const showTableData = computed<boolean>(() => {
-    const state = matrixJoinersStore.state[matrixJoinersStore.endpoint];
-    return state && state.loading === false;
-});
-
-
-</script>
-
-
-
-<style scoped>
-.mobile-device-table{
-  @apply h-[calc(100vh-209px)] w-full overflow-scroll;
+const handleActiveChange = async (matrixJoiner: any) => {
+  await addEditMatrixJoiner(matrixJoiner.id, {
+    is_active: !matrixJoiner.is_active
+  })
 }
 
+const containsIcon = (data: any) => {
+  return data.strategy?.image_url ? true : false
+}
+
+const showEdit = (data: any) => {
+  showAddEditModal.value = true
+  addEditMatrixJoinerData.value = data
+}
+
+const deleteModal = (id: number) => {
+  showDeleteConfirmationModal.value = true
+  idForDelete.value = id
+}
+
+const formatDate = (date: string) => {
+  if (!date) return ''
+  return date.replace('T', ' ').replace('Z', '')
+}
+</script>
+
+<style scoped>
+:deep(.form-checkbox) {
+  @apply rounded border-gray-700 text-[#7C3AED] focus:ring-[#7C3AED];
+}
 </style>

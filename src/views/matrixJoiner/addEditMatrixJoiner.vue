@@ -1,93 +1,135 @@
 <template>
-  <Modal1 size="xl" :show="showAddEditModal" @close="closeModel">
-    
-
-    <template #header>
-      <div class="flex flex-wrap items-center font-bold text-lg sm:text-xl">
-        {{ matrixJoiner.id ? `Edit   Joiner Info` : `Add   Joiner Info` }}
+  <div v-if="showAddEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="w-[400px] bg-[#1c1c1f] rounded-lg shadow-xl">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center p-6">
+        <h2 class="text-xl text-white font-medium">
+          {{ matrixJoiner.id ? 'Edit Joiner Info' : 'Add Joiner Info' }}
+        </h2>
+        <button @click="closeModel" class="text-gray-400 hover:text-white">
+          <XIcon class="h-5 w-5" />
+        </button>
       </div>
-    </template>
-    
-    <template #body>
-      <form class="p-4 pt-2 validate-form" @submit.prevent="save(matrixJoiner.id || 0)">
 
-        <div class="input-form mt-3" v-if="!matrixJoiner.id">
-          <label for="broker_id" class="form-label w-full flex flex-col sm:flex-row font-bold mb-1">
-              Broker
-            </label>
-        
-            <MultiselectDropdown :initialOptions="dropdownOptions" imageShow :selected="handleSelectedBroker"/>
-
-            <template v-if="validate.broker_id.$error">
-              <div v-for="(error, index) in validate.broker_id.$errors" :key="index" class="text-danger mt-2">
-                {{ error.$message }}
-              </div>
-            </template>
-          
+      <!-- Modal Body -->
+      <form class="p-6 space-y-6" @submit.prevent="save(matrixJoiner.id || 0)">
+        <!-- Broker Selection -->
+        <div v-if="!matrixJoiner.id">
+          <label class="block text-white mb-2 font-medium">Broker</label>
+          <MultiselectDropdown 
+            :initialOptions="dropdownOptions" 
+            imageShow 
+            :selected="handleSelectedBroker"
+            class="bg-[#262626] border border-gray-700 rounded-lg text-white"
+          />
         </div>
 
-        <div class="input-form mt-3">
-          <label for="lots" class="form-label w-full flex flex-col sm:flex-row"> Lot Size </label>
-          <input id="lots" v-model.trim="validate.lots.$model" type="number" name="lots" class="form-control"
-            :class="{ 'is-invalid': validate.lots.$error }" placeholder="enter lot size" />
-          <template v-if="validate.lots.$error">
-            <div v-for="(error, index) in validate.lots.$errors" :key="index" class="text-danger mt-2">
-              {{ error.$message }}
-            </div>
-          </template>
+        <!-- Lot Size -->
+        <div>
+          <label class="block text-white mb-2 font-medium">Lot Size</label>
+          <div class="flex items-center bg-[#262626] rounded-lg border border-gray-700">
+            <button 
+              type="button"
+              @click="decrementLots"
+              class="p-3 text-[#7C3AED] hover:bg-gray-700/50 rounded-l-lg"
+            >
+              <MinusIcon class="h-5 w-5" />
+            </button>
+            <input
+              v-model.number="validate.lots.$model"
+              type="number"
+              class="flex-1 bg-transparent text-white text-center border-0 focus:ring-0"
+              :class="{ 'border-red-500': validate.lots.$error }"
+            />
+            <button 
+              type="button"
+              @click="incrementLots"
+              class="p-3 text-[#7C3AED] hover:bg-gray-700/50 rounded-r-lg"
+            >
+              <PlusIcon class="h-5 w-5" />
+            </button>
+          </div>
+          <div v-if="validate.lots.$error" class="text-red-500 text-sm mt-1">
+            {{ validate.lots.$errors[0]?.$message }}
+          </div>
         </div>
 
-        <div class="input-form mt-3">
-          <label for="re_entry" class="form-label w-full flex flex-col sm:flex-row"> Re Entry </label>
-          <input id="re_entry" v-model.trim="validate.re_entry.$model" type="number" name="re_entry" class="form-control"
-            :class="{ 'is-invalid': validate.re_entry.$error }" placeholder="enter re-entry" />
-          <template v-if="validate.re_entry.$error">
-            <div v-for="(error, index) in validate.re_entry.$errors" :key="index" class="text-danger mt-2">
-              {{ error.$message }}
-            </div>
-          </template>
+        <!-- Re-entry -->
+        <div>
+          <label class="block text-white mb-2 font-medium">Re-entry</label>
+          <div class="flex items-center bg-[#262626] rounded-lg border border-gray-700">
+            <button 
+              type="button"
+              @click="decrementReEntry"
+              class="p-3 text-[#7C3AED] hover:bg-gray-700/50 rounded-l-lg"
+            >
+              <MinusIcon class="h-5 w-5" />
+            </button>
+            <input
+              v-model.number="validate.re_entry.$model"
+              type="number"
+              class="flex-1 bg-transparent text-white text-center border-0 focus:ring-0"
+              :class="{ 'border-red-500': validate.re_entry.$error }"
+            />
+            <button 
+              type="button"
+              @click="incrementReEntry"
+              class="p-3 text-[#7C3AED] hover:bg-gray-700/50 rounded-r-lg"
+            >
+              <PlusIcon class="h-5 w-5" />
+            </button>
+          </div>
+          <div v-if="validate.re_entry.$error" class="text-red-500 text-sm mt-1">
+            {{ validate.re_entry.$errors[0]?.$message }}
+          </div>
         </div>
 
-        <div class="input-form mt-3">
-          <label class="form-label w-full flex flex-col sm:flex-row"> Status </label>
-          <ButtonSwitch id="is_active" name="is_active" v-model.trim="validate.is_active.$model" @update:modelValue.trim="(value: any) => {
-              formData.is_active = value
-            }
-            " />
+        <!-- Status Toggle -->
+        <div>
+          <label class="block text-white mb-2 font-medium">Status</label>
+          <ButtonSwitch
+            v-model="validate.is_active.$model"
+            class="[&>*]:!bg-[#7C3AED]"
+            @update:modelValue="(value) => formData.is_active = value"
+          />
         </div>
 
-        <div class="flex justify-end items-end md:col-span-2 lg:col-span-3">
-          <button type="submit" class="btn-submit" @click="submitForm">Submit</button>
-
-          <button type="button" class="btn-close" @click="closeModel">Close</button>
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-3 pt-4">
+          <button
+            type="button"
+            @click="closeModel"
+            class="px-6 py-2 rounded-lg border border-gray-700 text-white hover:bg-gray-700/50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-6 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] transition-colors"
+          >
+            Submit
+          </button>
         </div>
       </form>
-    </template>
-  </Modal1>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { XIcon, MinusIcon, PlusIcon } from 'lucide-vue-next'
 import { showToast } from '@/request/request'
 import { useMatrixJoinersStore } from '@/stores/matrix/matrixJoiner'
 import { useBrokersStore } from '@/stores/matrix/broker'
 import { storeToRefs } from 'pinia'
-import { toRefs, computed, reactive, watch, watchEffect, ref } from 'vue'
-import { required, minLength, integer } from '@vuelidate/validators'
+import { toRefs, computed, reactive, watch, ref } from 'vue'
+import { required } from '@vuelidate/validators'
 import { useVuelidate } from '@vuelidate/core'
-
-
-
 
 const matrixJoinersStore = useMatrixJoinersStore()
 const brokersStore = useBrokersStore()
 
 const { showAddEditModal, addEditMatrixJoinerData, joinStrategyId } = storeToRefs(matrixJoinersStore)
 const { addEditMatrixJoiner } = matrixJoinersStore
-
-
-
-
-
 
 interface MatrixJoiner {
   id?: number
@@ -97,33 +139,25 @@ interface MatrixJoiner {
   re_entry?: number
   is_active?: boolean
 }
+
 interface Broker {
   id?: any
   broker_name?: string
   broker_userid?: string
 }
 
-const dropdownOptions = computed<any>(() => {
-  let temp = brokersStore.brokers || []
-  if (temp.length > 0) {
-    return temp.map((broker: Broker) => {
-      return {
-        id: broker.id,
-        label: `${broker.broker_name}-(${broker.broker_userid})`,
-        image: broker.broker_name
-      };
-    });
-  }
-  return []
+const dropdownOptions = computed(() => {
+  return (brokersStore.brokers || []).map((broker: Broker) => ({
+    id: broker.id,
+    label: `${broker.broker_name}-(${broker.broker_userid})`,
+    image: broker.broker_name
+  }))
 })
 
 const selectedBrokerOptions = ref([])
+const matrixJoiner = computed<MatrixJoiner>(() => addEditMatrixJoinerData.value)
 
-const matrixJoiner = computed<MatrixJoiner>(() => {
-  return addEditMatrixJoinerData.value
-})
-
-let formData = reactive({
+const formData = reactive({
   id: 0,
   broker_id: 0,
   strategy_id: 0,
@@ -138,84 +172,96 @@ const handleSelectedBroker = (option: any) => {
 
 watch(matrixJoiner, (newMatrixJoiner, oldMatrixJoiner) => {
   if (newMatrixJoiner !== oldMatrixJoiner) {
-    formData.strategy_id = newMatrixJoiner.strategy_id !== undefined ? newMatrixJoiner.strategy_id : 0
-    formData.broker_id = newMatrixJoiner.broker_id !== undefined ? newMatrixJoiner.broker_id : 0
-    formData.lots = newMatrixJoiner.lots !== undefined ? newMatrixJoiner.lots : 0
-    formData.re_entry = newMatrixJoiner.re_entry !== undefined ? newMatrixJoiner.re_entry : 0
-    formData.is_active = newMatrixJoiner.is_active !== undefined ? newMatrixJoiner.is_active : false
+    formData.strategy_id = newMatrixJoiner.strategy_id ?? 0
+    formData.broker_id = newMatrixJoiner.broker_id ?? 0
+    formData.lots = newMatrixJoiner.lots ?? 0
+    formData.re_entry = newMatrixJoiner.re_entry ?? 0
+    formData.is_active = newMatrixJoiner.is_active ?? false
   }
 })
 
 const rules = {
-  id: {
-    required
-  },
-  broker_id: {
-
-  },
-  strategy_id: {
-
-  },
-  lots: {
-    required
-  },
-  re_entry: {
-    required
-  },
-  is_active: {
-    required
-  }
+  id: { required },
+  broker_id: {},
+  strategy_id: {},
+  lots: { required },
+  re_entry: { required },
+  is_active: { required }
 }
 
 let validate = useVuelidate(rules, toRefs(formData))
-
 
 function closeModel() {
   addEditMatrixJoinerData.value = {}
   showAddEditModal.value = false
   resetValidation()
 }
-const submitForm = async () => {
-  validate.value.$touch()
-  // if (!validate.value.$invalid) {
-  //   showAddEditModal.value = false
-  // }
-}
 
 function resetValidation() {
   validate = useVuelidate(rules, toRefs(formData))
 }
 
-const save = async (id: number) => {
-  validate.value.$touch()
-  validate.value.$touch()
-  if (validate.value.$invalid) {
-    showToast("Please check the filled form!")
-  } else {
-        if (joinStrategyId.value) {
-            formData.strategy_id = joinStrategyId.value
-        }
-        
-        if(selectedBrokerOptions.value.length > 0){
-            for(let i = 0; i < selectedBrokerOptions.value.length; i++){
-                formData.broker_id = parseInt(selectedBrokerOptions.value[i])
-
-                await addEditMatrixJoiner(id, formData)
-               
-            }
-            addEditMatrixJoinerData.value = {};
-            joinStrategyId.value = 0;
-            selectedBrokerOptions.value = [];
-            resetValidation();
-        }else{
-            await addEditMatrixJoiner(id, formData)
-            addEditMatrixJoinerData.value = {};
-            resetValidation();
-        }
-        showAddEditModal.value = false
+const incrementLots = () => {
+  if (validate.value.lots.$model !== undefined) {
+    validate.value.lots.$model++
   }
 }
 
+const decrementLots = () => {
+  if (validate.value.lots.$model !== undefined && validate.value.lots.$model > 0) {
+    validate.value.lots.$model--
+  }
+}
 
+const incrementReEntry = () => {
+  if (validate.value.re_entry.$model !== undefined) {
+    validate.value.re_entry.$model++
+  }
+}
 
+const decrementReEntry = () => {
+  if (validate.value.re_entry.$model !== undefined && validate.value.re_entry.$model > 0) {
+    validate.value.re_entry.$model--
+  }
+}
+
+const save = async (id: number) => {
+  validate.value.$touch()
+  if (validate.value.$invalid) {
+    showToast("Please check the filled form!")
+    return
+  }
+
+  if (joinStrategyId.value) {
+    formData.strategy_id = joinStrategyId.value
+  }
+
+  if (selectedBrokerOptions.value.length > 0) {
+    for (const brokerId of selectedBrokerOptions.value) {
+      formData.broker_id = parseInt(brokerId)
+      await addEditMatrixJoiner(id, formData)
+    }
+    addEditMatrixJoinerData.value = {}
+    joinStrategyId.value = 0
+    selectedBrokerOptions.value = []
+    resetValidation()
+  } else {
+    await addEditMatrixJoiner(id, formData)
+    addEditMatrixJoinerData.value = {}
+    resetValidation()
+  }
+  
+  showAddEditModal.value = false
+}
 </script>
+
+<style scoped>
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+</style>

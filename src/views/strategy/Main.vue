@@ -160,6 +160,7 @@ import { useProfileStore } from "@/stores/matrix/profile"
 import { Monitor, IndianRupee } from 'lucide-vue-next'
 import AddMatrixJoiner from ".././matrixJoiner/addEditMatrixJoiner.vue"
 import Message from './message.vue'
+import { makeRequest } from "@/request/request"
 
 // Store initialization
 const strategiesStore = useStrategiesStore()
@@ -307,20 +308,26 @@ const removeStrategy = async (strategy: any) => {
 
 // Handle strategy activation/deactivation
 const handleStrategyToggle = async (strategy: any) => {
-  if (!isStrategyDeployed(strategy.id)) return
+  // if (!isStrategyDeployed(strategy.id)) return
 
-  try {
-    const joinedStrategy = stratgyJoinedPlans.value.find(
-      (joined: any) => joined.strategy_id === strategy.id
-    )
-    if (joinedStrategy) {
-      strategy.is_active = !strategy.is_active
-      await strategiesStore.addEditMatrixJoiner(joinedStrategy.id, {
-        is_active: strategy.is_active
-      })
-      await strategiesStore.getStrategies()
-    }
-  } catch (error) {
+  // try {
+  //   const joinedStrategy = stratgyJoinedPlans.value.find(
+  //     (joined: any) => joined.strategy_id === strategy.id
+  //   )
+  //   if (joinedStrategy) {
+  //     strategy.is_active = !strategy.is_active
+  //     await strategiesStore.addEditMatrixJoiner(joinedStrategy.id, {
+  //       is_active: strategy.is_active
+  //     })
+  //     await strategiesStore.getStrategies()
+  //   }
+  try{
+    const res = await makeRequest('plan_strategy' , 'PUT' , {is_active: !strategy.is_active} , {}, {},0, strategy.id)
+    console.log(res)
+    strategy.is_active = !strategy.is_active
+  }
+  
+   catch (error) {
     console.error('Failed to update strategy:', error)
     strategy.is_active = !strategy.is_active
   }

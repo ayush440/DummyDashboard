@@ -85,7 +85,7 @@
 
               <!-- Legend with Animation -->
               <div class="flex-1 animate-slide-in-right">
-                <div class="space-y-4">
+                <div class="space-y-4 border-b border-gray-600  p-4">
                   <div v-for="(item, index) in displayedChartData" 
                        :key="index"
                        class="flex items-center justify-between">
@@ -109,8 +109,19 @@
     </div>
 
     <!-- Positions Table -->
+     <div class=" text-white text-2xl mx-8  mb-5 flex justify-between ">
+
+ <p> Positons</p>
+ <RouterLink to="/positions" 
+                    class="text-sm text-white px-4 rounded-lg hover:text-white flex items-center gap-2 border border-gray-600 ">
+            View All
+            <ArrowRightIcon class="w-4 h-4" />
+          </RouterLink>
+     </div>
     <div class="bg-[#1d1d20] rounded-lg mx-6">
-      <div class="p-4 sm:p-6 border-b">
+
+      
+      <!-- <div class="p-4 sm:p-6 border-b">
         <div class="flex justify-between items-center">
           <h2 class="text-lg text-gray-500 font-semibold">Positions</h2>
           <RouterLink to="/positions" 
@@ -119,7 +130,7 @@
             <ArrowRightIcon class="w-4 h-4" />
           </RouterLink>
         </div>
-      </div>
+      </div> -->
       <div class="overflow-x-auto">
         <positionTable :positions="displayedPositions.slice(0, maxDisplayedPositions)" :mode="isTabActive" />
       </div>

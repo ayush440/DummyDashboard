@@ -47,16 +47,16 @@ export const useNavlinksStore = defineStore('navlink', () => {
     {
       icon: 'VideoIcon',
       name: 'videos',
-      title: 'Videos',
+      title: 'Tutorials',
+      permission: 'Read_videos'
+    },
+    {
+      icon: 'PricingIcons',
+      name: 'pricing',
+      title: 'Pricing',
       permission: 'Read_videos'
     },
 
-    {
-      icon: 'VideoIcon',
-      name: 'videos',
-      title: 'Videos',
-      permission: 'Read_videos'
-    },
     
 
     // {

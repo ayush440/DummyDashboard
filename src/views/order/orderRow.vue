@@ -91,8 +91,9 @@
                 
             <div class="text-end text-xs min-w-24 uppercase">
                 <div :class="{
-                    'color-success-100': order.status === 'COMPLETE',
+                    'color-success-100': order.status === 'SUCCESSFULL',
                     'color-sell-100': order.status === 'REJECTED',
+                   
                     'color-pending-100':
                         order.status === 'AMO REQ RECEIVED' || order.status === 'CANCELLED'
                     }"

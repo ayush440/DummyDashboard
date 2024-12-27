@@ -1,23 +1,13 @@
 <template>
   <div :class="[isDashboard ? 'flex' : 'hidden md:flex']" class="border border-gray-600 bg-[#1D1D20] w-auto justify-between items-center flex-wrap space-y-1 pl-4 md:pl-10 pr-2 md:pr-4 py-3 md:py-4">
     <!-- Page Name -->
-    <div class="unselectable capitalize font-bold text-lg sm:text-2xl text-white dark:text-tableText"> 
-      <span v-if="!isDashboard">{{ title }}</span>
-      <span v-if="isDashboard">Hello {{ profile?.name }} 👋</span>
-    </div>
-
-    <div class="flex items-center gap-4 pt-0 pr-6 2xl:pr-2">
-      <!-- Add Broker Button -->
-      <button 
-        @click="showAddEditModal=true"
-        class="flex items-center gap-2 bg-[#8B7EFF] hover:bg-[#7A6DFF] text-white px-4 py-2 rounded-lg transition-colors duration-200"
-      >
-        <PlusIcon class="w-4 h-4" />
-        <span class="text-sm font-medium">Add broker</span>
-      </button>
+    <div class="unselectable capitalize font-bold text-lg sm:text-2xl text-white dark:text-tableText flex items-center gap-4"> 
+      <!-- <span v-if="!isDashboard">{{ title }}</span>
+      <span v-if="isDashboard">Hello {{ profile?.name }} 👋</span> -->
+      <span >Hello {{ profile?.name }} 👋</span>
 
       <!-- Toggle Switch -->
-      <div v-if="isDashboard">
+      <div>
         <div 
           class="relative inline-flex items-center rounded-full cursor-pointer w-[160px] h-[32px] bg-[#1D1D20] border border-gray-500" 
           @click="toggleMode"
@@ -40,6 +30,19 @@
           </span>
         </div>
       </div>
+    </div>
+
+    
+
+    <div class="flex items-center gap-4 pt-0 pr-6 2xl:pr-2">
+      <!-- Add Broker Button -->
+      <button 
+        @click="showAddEditModal=true"
+        class="flex items-center gap-2 bg-[#1d1d20] border border-gray-600 hover:bg-[#7A6DFF] text-white px-4 py-2 rounded-lg transition-colors duration-200"
+      >
+        <PlusIcon class="w-4 h-4" />
+        <span class="text-sm font-medium">Add broker</span>
+      </button>
 
       <div class="hidden md:flex items-center gap-2">
         <!-- Notification -->

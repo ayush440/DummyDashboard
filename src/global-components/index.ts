@@ -17,6 +17,7 @@ import NotifyIcon from '../components/icons/NotifyIcon.vue'
 import ErrorIcon from '../components/icons/ErrorIcon.vue'
 import FilesIcon from '../components/icons/FilesIcon.vue'
 import HomeIcon from '../components/icons/HomeIcon.vue'
+import PricingIcons from '@/components/icons/PricingIcons.vue'
 import InboxIcon from '../components/icons/InboxIcon.vue'
 import UserCircleIcon from '../components/icons/UserCircleIcon.vue'
 import UserIcon from '../components/icons/UserIcon.vue'
@@ -164,6 +165,7 @@ export default (app: any) => {
   app.component('ProfitIcon', ProfitIcon)
   app.component('PlanIcon', PlanIcon)
   app.component('BookOpenIcon', BookOpenIcon)
+  app.component('PricingIcons', PricingIcons)
   
 
 

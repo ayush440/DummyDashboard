@@ -1,83 +1,95 @@
 <template>
-  <div class="min-h-screen bg-[#1C1C1C] p-6">
-    <!-- Header Section with Filters -->
-    <div class="flex justify-between items-center mb-6">
-      <div class="relative">
+  <div class="min-h-screen bg-[#2a2a2c] p-6">
+    <!-- Breadcrumb - Improved spacing -->
+    <nav class="flex items-center gap-2 text-gray-400 mb-6">
+      <span>Home</span>
+      <span class="text-gray-600">›</span>
+      <span>Positions</span>
+    </nav>
+
+    <!-- Header Section - Better spacing and alignment -->
+    <h1 class="text-white text-2xl mb-6">Positions</h1>
+    
+    <!-- Search and Filters - Improved layout -->
+    <div class="flex justify-between items-center p-4 rounded-t-lg bg-[#1c1c1f]">
+      <!-- Search - Consistent spacing -->
+      <div class="relative w-64">
         <input
           type="text"
           placeholder="Search"
           v-model="searchQuery"
-          class="w-64 bg-[#2A2A2C] text-white pl-10 pr-4 py-2 rounded-md border border-gray-700 focus:outline-none focus:border-[#7C3AED]"
+          class="w-full bg-[#1c1c1f] text-white pl-10 pr-4 py-2 rounded-md border border-gray-700 focus:outline-none focus:border-[#7C3AED]"
         />
-        <SearchIcon class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+        <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
       </div>
 
-      <div class="flex items-center gap-4 text-gray-400">
-        <span>Showing position type:</span>
-        <div class="flex gap-3">
-          <label class="flex items-center gap-2 cursor-pointer" @click.stop>
+      <!-- Filters - Better alignment -->
+      <div class="flex items-center gap-6">
+        <span class="text-gray-400">Showing position type:</span>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
             <input 
               type="checkbox" 
               v-model="filters.all" 
               @change="handleFilterChange('all')"
-              class="form-checkbox rounded bg-transparent border-gray-600 text-[#7C3AED]" 
+              class="form-checkbox" 
             />
-            <span>All</span>
+            <span class="text-gray-400">All</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer" @click.stop>
+          <label class="flex items-center gap-2 cursor-pointer">
             <input 
               type="checkbox" 
               v-model="filters.open"
               @change="handleFilterChange('open')"
-              class="form-checkbox rounded bg-transparent border-gray-600 text-[#7C3AED]" 
+              class="form-checkbox" 
             />
-            <span>Open</span>
+            <span class="text-gray-400">Open</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer" @click.stop>
+          <label class="flex items-center gap-2 cursor-pointer">
             <input 
               type="checkbox" 
               v-model="filters.closed"
               @change="handleFilterChange('closed')"
-              class="form-checkbox rounded bg-transparent border-gray-600 text-[#7C3AED]" 
+              class="form-checkbox" 
             />
-            <span>Closed</span>
+            <span class="text-gray-400">Closed</span>
           </label>
         </div>
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="bg-[#2A2A2C] rounded-lg overflow-hidden">
-      <table class="w-full">
+    <!-- Table - Improved cell alignment -->
+    <div class="bg-[#1d1d20] rounded-b-lg overflow-hidden">
+      <table class="w-full border-collapse">
         <thead>
           <tr class="text-gray-400 text-sm border-b border-gray-700">
-            <th class="py-4 px-6 text-left">Strategy</th>
-            <th class="py-4 px-6 text-left">Side</th>
-            <th class="py-4 px-6 text-center">QTY</th>
-            <th class="py-4 px-6 text-right">PNL</th>
-            <th class="py-4 px-6 text-center">Status</th>
-            <th class="py-4 px-6 text-right">Action</th>
+            <th class="py-4 px-6 text-left font-medium">Strategy</th>
+            <th class="py-4 px-6 text-left font-medium">Side</th>
+            <th class="py-4 px-6 text-center font-medium">QTY</th>
+            <th class="py-4 px-6 text-right font-medium">PNL</th>
+            <th class="py-4 px-6 text-center font-medium">Status</th>
+            <th class="py-4 px-6 text-right font-medium">Action</th>
           </tr>
         </thead>
         <tbody>
           <template v-for="position in filteredPositions" :key="position.id">
+            <!-- Main Row - Consistent spacing -->
             <tr>
-              <!-- Main Row -->
-              <td 
-                colspan="6" 
-                class="p-0"
-                @click="toggleExpand(position.id)"
-              >
-                <div class="grid grid-cols-6 cursor-pointer hover:bg-gray-700/20 transition-colors">
-                  <div class="py-4 px-6">{{ position.strategy?.name || 'Multidisciplinary' }}</div>
-                  <div class="py-4 px-6">{{ position.side }}</div>
-                  <div class="py-4 px-6 text-center">{{ position.quantity }}/25</div>
+              <td colspan="6" class="p-0">
+                <div 
+                  class="grid grid-cols-6 cursor-pointer hover:bg-[#262626] transition-colors" 
+                  :class="{'bg-[#262626]': expandedRow === position.id}"
+                  @click="toggleExpand(position.id)"
+                >
+                  <div class="py-4 px-6 text-white">{{ position.strategy?.name || 'Multidisciplinary' }}</div>
+                  <div class="py-4 px-6 text-white">{{ position.side }}</div>
+                  <div class="py-4 px-6 text-center text-white">{{ position.quantity }}/25</div>
                   <div class="py-4 px-6 text-right" :class="calculatePnL(position) >= 0 ? 'text-green-400' : 'text-red-400'">
                     {{ calculatePnL(position) >= 0 ? '+' : '' }}{{ calculatePnL(position) }}
                   </div>
-                  <div class="py-4 px-6 text-center">
+                  <div class="py-4 px-6 flex justify-center">
                     <span 
-                      class="px-3 py-1 rounded-full text-xs font-medium"
+                      class="px-3 py-1 rounded-full text-xs font-medium inline-block min-w-[4rem] text-center"
                       :class="position.status === 'OPEN' ? 'bg-green-400/20 text-green-400' : 'bg-red-400/20 text-red-400'"
                     >
                       {{ position.status.toLowerCase() }}
@@ -87,7 +99,7 @@
                     <button
                       v-if="position.status === 'OPEN'"
                       @click.stop="openSquareOffModal(position)"
-                      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#7C3AED]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20 transition-colors"
+                      class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#7C3AED] bg-[#1d1d20]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20 transition-colors"
                     >
                       <span>Square Off</span>
                       <ChevronDownIcon class="w-4 h-4" :class="{'rotate-180': expandedRow === position.id}" />
@@ -99,28 +111,28 @@
                 </div>
               </td>
             </tr>
-            <!-- Expanded Details Row -->
-            <tr v-if="expandedRow === position.id" class="bg-[#1C1C1C] border-t border-gray-700/50">
+            <!-- Expanded Details - Improved grid layout -->
+            <tr v-if="expandedRow === position.id" class="bg-[#262626] border-t border-gray-700/50">
               <td colspan="6" class="py-4">
-                <div class="grid grid-cols-5 px-6 gap-x-4 text-sm">
-                  <div class="py-3">
-                    <div class="text-gray-400 mb-1">Script</div>
+                <div class="grid grid-cols-5 px-6 gap-6">
+                  <div class="space-y-1">
+                    <div class="text-gray-400 text-sm">Script</div>
                     <div class="text-white">{{ position.strategy?.script || 'Nifty36FDWTE72' }}</div>
                   </div>
-                  <div class="py-3">
-                    <div class="text-gray-400 mb-1">Broker</div>
+                  <div class="space-y-1">
+                    <div class="text-gray-400 text-sm">Broker</div>
                     <div class="text-white">{{ position.broker?.broker_name || 'DHAN2DS2E28G' }}</div>
                   </div>
-                  <div class="py-3">
-                    <div class="text-gray-400 mb-1">Buy price</div>
+                  <div class="space-y-1">
+                    <div class="text-gray-400 text-sm">Buy price</div>
                     <div class="text-white">₹{{ position.buy_price }} ({{ formatTime(position.buy_time) }})</div>
                   </div>
-                  <div class="py-3">
-                    <div class="text-gray-400 mb-1">Sell price</div>
+                  <div class="space-y-1">
+                    <div class="text-gray-400 text-sm">Sell price</div>
                     <div class="text-white">₹{{ position.sell_price }} ({{ formatTime(position.sell_time) }})</div>
                   </div>
-                  <div class="py-3">
-                    <div class="text-gray-400 mb-1">LTP</div>
+                  <div class="space-y-1">
+                    <div class="text-gray-400 text-sm">LTP</div>
                     <div class="text-white">{{ getLtp(position) }}</div>
                   </div>
                 </div>

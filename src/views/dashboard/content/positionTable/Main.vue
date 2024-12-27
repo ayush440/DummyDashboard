@@ -3,14 +3,14 @@
     <!-- Desktop View -->
     <div class="hidden sm:block space-y-2">
       <!-- Header row -->
-      <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_40px] items-center px-4 py-3 font-medium text-gray-700">
-        <div>STRATEGY NAME</div>
-        <div>QUANTITY</div>
-        <div>SIDE</div>
-        <div>TIME</div>
-        <div>P&L</div>
-        <div>TYPE</div>
-        <div></div>
+      <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_40px]  items-center px-4 py-3 font-medium text-gray-700">
+        <div class="w-[30%]">STRATEGY NAME</div>
+        <div class="w-[10%]">QUANTITY</div>
+        <div class="w-[10%]">SIDE</div>
+        <div class="w-[10%]">TIME</div>
+        <div class="w-[10%]">P&L</div>
+        <div class="w-[10%]">TYPE</div>
+        
       </div>
 
       <!-- Strategy groups -->

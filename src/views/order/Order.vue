@@ -1,36 +1,51 @@
 <template>
   <PlaceOrder :isOpen="isOpen" :toggleModal="toggleModal"/>
   <div class="min-h-screen bg-[#2a2a2c]">
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-gray-400 px-6 py-3 mt-3">
+    <!-- Mobile Header -->
+    <div class="md:hidden flex items-center justify-between px-4 py-3 border-b border-gray-800">
+      <div class="flex items-center gap-2">
+        <button class="text-white" @click="$router.back()">
+          <ChevronLeft class="h-5 w-5" />
+        </button>
+        <h1 class="text-xl text-white">Order</h1>
+      </div>
+      <button @click="toggleModal" class="bg-[#8b7eff] text-white px-4 py-1.5 rounded-lg text-sm">
+        Place order
+      </button>
+    </div>
+
+    <!-- Desktop Breadcrumb -->
+    <div class="hidden md:flex items-center gap-2 text-gray-400 px-6 py-3 mt-3">
       <span>Home</span>
       <span>›</span>
       <span>Order</span>
     </div>
 
-    <!-- Header -->
-    <div class="flex justify-between items-center px-6 py-4">
+    <!-- Desktop Header -->
+    <div class="hidden md:flex justify-between items-center px-6 py-4">
       <h1 class="text-2xl text-white">Order</h1>
-      <button  @click="toggleModal" class="bg-[#8b7eff] text-white px-4 py-1 rounded-lg">
+      <button @click="toggleModal" class="bg-[#8b7eff] text-white px-4 py-1 rounded-lg">
         Place order
       </button>
     </div>
 
     <!-- Main Content -->
-    <div class="px-6">
+    <div class="px-4 md:px-6">
       <!-- Search and Filters -->
-      <div class="flex justify-between items-center rounded-t-lg mx-auto pr-6 py-4 bg-[#1d1d20]">
-        <div class="relative w-64">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center rounded-t-lg mx-auto md:pr-6 py-4 bg-[#1d1d20] gap-4">
+        <!-- Search Bar -->
+        <div class="relative w-full md:w-64 px-4 md:px-0 md:ml-5">
           <input 
             v-model="searchQuery"
             type="search" 
             placeholder="Search" 
-            class="w-full bg-[#1d1d20] text-white border ml-5 border-gray-600 rounded-lg pl-10 pr-4 py-2 focus:outline-none"
+            class="w-full bg-[#1d1d20] text-white border border-gray-600 rounded-lg pl-10 pr-4 py-2 focus:outline-none"
           />
-          <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ml-5 text-gray-400" />
+          <Search class="absolute left-7 md:left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         </div>
         
-        <div class="flex items-center gap-4">
+        <!-- Desktop Filters -->
+        <div class="hidden md:flex items-center gap-4">
           <span class="text-gray-400">Showing order type:</span>
           <div class="flex gap-3">
             <label class="flex items-center gap-2 cursor-pointer">
@@ -47,10 +62,22 @@
             </label>
           </div>
         </div>
+
+        <!-- Mobile Filter Button -->
+        <div class="md:hidden flex justify-between items-center w-full px-4">
+          <span class="text-gray-400">Showing order type:</span>
+          <button 
+            @click="showFilterModal = true"
+            class="flex items-center gap-2 text-white bg-[#2C2C2E] px-3 py-1.5 rounded-lg"
+          >
+            <SlidersHorizontal class="w-4 h-4" />
+            Filter
+          </button>
+        </div>
       </div>
 
-      <!-- Table -->
-      <div class="bg-[#2C2C2E] rounded-b-lg  overflow-x-auto">
+      <!-- Desktop Table -->
+      <div class="hidden md:block bg-[#2C2C2E] rounded-b-lg overflow-x-auto">
         <table class="w-full">
           <thead>
             <tr class="text-gray-400 bg-[#262626]">
@@ -67,7 +94,7 @@
           <tbody class="divide-y divide-gray-800">
             <template v-if="filteredOrders.length > 0">
               <tr 
-                v-for="(order, i) in filteredOrders" 
+                v-for="order in filteredOrders" 
                 :key="order.serialNo" 
                 class="text-white bg-[#1d1d20]"
               >
@@ -80,18 +107,12 @@
                 <td class="p-4">₹{{ order.status === 'COMPLETE' && (order.order_type === 'MARKET' || order.order_type === 'MKT') ? 
                   order.average_price : order.price }}</td>
                 <td class="p-4">
-                  <span :class="{
-                    'px-3 py-1 rounded-full text-sm': true,
-                    'bg-green-500/20 text-green-500': order.status === 'COMPLETE',
-                    'bg-[#92400E]/20 text-[#F59E0B]': order.status === 'PENDING',
-                    'bg-red-500/20 text-red-500': order.status === 'REJECTED'
-                  }">
+                  <span :class="getStatusClasses(order.status)">
                     {{ order.status || '--' }}
                   </span>
                 </td>
               </tr>
             </template>
-            
             <tr v-else>
               <td colspan="8" class="p-4 text-center text-gray-400">
                 No Orders Found
@@ -100,13 +121,118 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Mobile Order List -->
+      <div class="md:hidden bg-[#1d1d20] rounded-b-lg divide-y divide-gray-800">
+        <template v-if="filteredOrders.length > 0">
+          <div 
+            v-for="order in filteredOrders" 
+            :key="order.serialNo"
+            class="p-4 flex items-center justify-between"
+            @click="showOrderDetails(order)"
+          >
+            <div class="flex-1">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-white">{{ order.strategy?.name || '--' }}</span>
+                <span :class="getStatusClasses(order.status)">
+                  {{ order.status || '--' }}
+                </span>
+              </div>
+              <div class="text-gray-400">₹{{ order.status === 'COMPLETE' && (order.order_type === 'MARKET' || order.order_type === 'MKT') ? 
+                order.average_price : order.price }}</div>
+            </div>
+            <ChevronRight class="text-gray-400 w-5 h-5 ml-4" />
+          </div>
+        </template>
+        <div v-else class="p-4 text-center text-gray-400">
+          No Orders Found
+        </div>
+      </div>
     </div>
+
+    <!-- Mobile Filter Modal -->
+    <Transition name="modal">
+      <div v-if="showFilterModal" class="fixed inset-0 z-50">
+        <div class="absolute inset-0 bg-black/25" @click="showFilterModal = false"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-[#1d1d20] rounded-t-2xl p-6">
+          <h3 class="text-lg font-medium text-white mb-4">Filter Orders</h3>
+          <div class="space-y-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input v-model="filters.successful" type="checkbox" class="form-checkbox rounded-lg bg-[#2C2C2E] border-gray-600 text-[#7C5CFC]" />
+              <span class="text-white">Successful</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input v-model="filters.pending" type="checkbox" class="form-checkbox rounded-lg bg-[#2C2C2E] border-gray-600 text-[#7C5CFC]" />
+              <span class="text-white">Pending</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input v-model="filters.rejected" type="checkbox" class="form-checkbox rounded-lg bg-[#2C2C2E] border-gray-600 text-[#7C5CFC]" />
+              <span class="text-white">Rejected</span>
+            </label>
+          </div>
+          <button
+            @click="showFilterModal = false"
+            class="w-full bg-[#8b7eff] text-white px-4 py-2 rounded-lg mt-6"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Order Details Modal -->
+    <Transition name="slide-up">
+      <div v-if="selectedOrder" class="fixed inset-x-0 bottom-0 z-50 bg-[#1d1d20] rounded-t-2xl md:hidden" style="height: 40vh">
+        <div class="relative h-full p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-medium text-white">{{ selectedOrder.strategy?.name || 'Multidisciplinary' }}</h3>
+            <button @click="selectedOrder = null" class="text-gray-400">
+              <X class="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div class="space-y-4 ">
+            <div class="flex justify-between items-center ">
+              <span class="text-gray-400">Broker</span>
+              <span class="text-white">{{ selectedOrder.broker?.broker_name || '--' }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Time</span>
+              <span class="text-white">{{ formatTime(selectedOrder.created_at) || '--' }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Script</span>
+              <span class="text-white">{{ selectedOrder.tradingsymbol || '--' }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Side</span>
+              <span class="text-white">{{ selectedOrder.transaction_type || '--' }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">QTY</span>
+              <span class="text-white">{{ selectedOrder.quantity || '0' }}/25</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Price</span>
+              <span class="text-white">₹{{ selectedOrder.status === 'COMPLETE' && (selectedOrder.order_type === 'MARKET' || selectedOrder.order_type === 'MKT') ? 
+                selectedOrder.average_price : selectedOrder.price }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Status</span>
+              <span :class="getStatusClasses(selectedOrder.status)">
+                {{ selectedOrder.status || '--' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Search } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
+import { Search, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-vue-next'
 import { useOrdersStore } from '@/stores/matrix/order'
 import { useManualOrdersStore } from '@/stores/groups/manualOrders'
 import PlaceOrder from '@/components/PlaceOrder.vue'
@@ -115,7 +241,10 @@ import PlaceOrder from '@/components/PlaceOrder.vue'
 const ordersStore = useOrdersStore()
 const manualOrdersStore = useManualOrdersStore()
 const isOpen = ref(false)
+const showFilterModal = ref(false)
+const selectedOrder = ref(null)
 const toggleModal = () => isOpen.value = !isOpen.value
+
 // Search and filter state
 const searchQuery = ref('')
 const filters = ref({
@@ -123,6 +252,26 @@ const filters = ref({
   pending: true,
   rejected: true
 })
+
+// Status styling function
+const getStatusClasses = (status: string) => {
+  const baseClasses = 'px-3 py-1 rounded-full text-sm'
+  switch (status) {
+    case 'COMPLETE':
+      return `${baseClasses} bg-green-500/20 text-green-500`
+    case 'PENDING':
+      return `${baseClasses} bg-[#92400E]/20 text-[#F59E0B]`
+    case 'REJECTED':
+      return `${baseClasses} bg-red-500/20 text-red-500`
+    default:
+      return baseClasses
+  }
+}
+
+// Order details handler
+const showOrderDetails = (order: any) => {
+  selectedOrder.value = order
+}
 
 // Computed properties
 const orders = computed(() => {
@@ -196,5 +345,27 @@ const formatTime = (dateString: string) => {
 ::-webkit-scrollbar-thumb {
   background: #4A4A4A;
   border-radius: 4px;
+}
+
+/* Modal Transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+/* Slide Up Transitions */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
 }
 </style>

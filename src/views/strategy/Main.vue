@@ -1,5 +1,5 @@
 <template>
-  
+  <EditModal/>
   <div class="w-full h-full md:h-full bg-[#2a2a2c]">
     <nav class="flex items-center gap-2 text-gray-400 p-6">
       <span>Home</span>
@@ -72,6 +72,7 @@
         <div v-for="strategy in filteredStrategies" 
              :key="strategy.id" 
              class="bg-[#1d1d20] rounded-lg p-4">
+             
           <!-- Tags -->
           <div class="flex gap-2 mb-4">
             <span :class="[
@@ -92,16 +93,9 @@
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-medium text-white">{{ strategy.name }}</h3>
             <div class="flex items-center">
-              <span class="mr-2 text-sm" :class="strategy.is_active ? 'text-green-400' : 'text-gray-400'">
-                {{ strategy.is_active ? 'Active' : 'Inactive' }}
-              </span>
-              <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out"
-                   :class="strategy.is_active ? 'bg-green-500' : 'bg-[#333336]'"
-                   @click="handleStrategyToggle(strategy)">
-                <div class="inline-block h-4 w-4 transform rounded-full bg-[#4a4a50] transition-transform duration-200 ease-in-out"
-                     :class="strategy.is_active ? 'translate-x-6' : 'translate-x-1'">
-                </div>
-              </div>
+              <button v-if="strategy.is_deployed" @click="showEdit(strategy)">
+                <img src="/public/edit.svg" alt="Edit">
+              </button>
             </div>
           </div>
 
@@ -129,7 +123,7 @@
           <!-- Action Buttons -->
           <div class="flex gap-2">
             <button 
-              v-if="!isStrategyDeployed(strategy.id)"
+              v-if="!strategy.is_deployed"
               @click="deployStrategy(strategy)"
               class="w-full py-2.5 rounded-md text-sm font-medium bg-[#4A4AFF] hover:bg-[#3A3AFF] text-white transition-colors"
             >
@@ -176,6 +170,17 @@ const { strategies, plans, stratgyJoinedPlans } = storeToRefs(strategiesStore)
 
 // Available trading symbols (without ALL)
 const availableSymbols = ['NIFTY', 'BANKNIFTY', 'STOCKS', 'SENSEX']
+
+import { useMatrixJoinersStore } from '@/stores/matrix/matrixJoiner'
+import EditModal from "./EditModal.vue"
+
+const matrixJoinersStore = useMatrixJoinersStore()
+const { showAddEditModal, addEditMatrixJoinerData, showDeleteConfirmationModal, idForDelete } = storeToRefs(matrixJoinersStore)
+
+const showEdit = (data: any) => {
+  showAddEditModal.value = true
+  addEditMatrixJoinerData.value = data
+}
 
 // Filter state with ALL symbol enabled by default
 const filters = ref({
@@ -235,22 +240,40 @@ const handleSymbolChange = () => {
   }
 }
 
-// Check if strategy is deployed
-const isStrategyDeployed = (strategyId: number) => {
-  return stratgyJoinedPlans.value.some((joined: any) => joined.strategy_id === strategyId)
-}
-
 // Get user ID for filtering
 const userId = computed(() => profileStore.profile?.id)
 
+// Merged strategies with joined plan details
+const mergedStrategies = computed(() => {
+  return strategies.value.map(strategy => {
+    const joinedStrategy = stratgyJoinedPlans.value.find(
+      (joined: any) => joined.strategy_id === strategy.id
+    )
+    if (joinedStrategy) {
+      return {
+        ...strategy,
+        lots: joinedStrategy.lots,
+        re_entry: joinedStrategy.re_entry,
+        is_deployed: true,
+        is_active: joinedStrategy.is_active
+      }
+    }
+    return {
+      ...strategy,
+      is_deployed: false,
+      is_active: false
+    }
+  })
+})
+
 // Filtered strategies based on all filters
 const filteredStrategies = computed(() => {
-  let filtered = [...strategies.value]
+  let filtered = mergedStrategies.value
 
   // Apply strategy type filters
   if (!filters.value.all) {
     if (filters.value.myStrategies) {
-      filtered = filtered.filter(strategy => strategy.user_id === userId.value)
+      filtered = filtered.filter(strategy => isDeplo)
     }
     if (filters.value.otherStrategies) {
       filtered = filtered.filter(strategy => strategy.user_id !== userId.value)
@@ -290,7 +313,9 @@ const deployStrategy = async (strategy: any) => {
     await strategiesStore.addEditMatrixJoiner(0, {
       strategy_id: strategy.id,
       is_deployed: true,
-      is_active: true
+      is_active: true,
+      lots: strategy.lots || 1,  // Default to 1 if not specified
+      re_entry: strategy.re_entry || false  // Default to false if not specified
     })
     await strategiesStore.getStrategies()
   } catch (error) {
@@ -315,26 +340,11 @@ const removeStrategy = async (strategy: any) => {
 
 // Handle strategy activation/deactivation
 const handleStrategyToggle = async (strategy: any) => {
-  // if (!isStrategyDeployed(strategy.id)) return
-
-  // try {
-  //   const joinedStrategy = stratgyJoinedPlans.value.find(
-  //     (joined: any) => joined.strategy_id === strategy.id
-  //   )
-  //   if (joinedStrategy) {
-  //     strategy.is_active = !strategy.is_active
-  //     await strategiesStore.addEditMatrixJoiner(joinedStrategy.id, {
-  //       is_active: strategy.is_active
-  //     })
-  //     await strategiesStore.getStrategies()
-  //   }
-  try{
-    const res = await makeRequest('plan_strategy' , 'PUT' , {is_active: !strategy.is_active} , {}, {},0, strategy.id)
+  try {
+    const res = await makeRequest('plan_strategy', 'PUT', {is_active: !strategy.is_active}, {}, {}, 0, strategy.id)
     console.log(res)
     strategy.is_active = !strategy.is_active
-  }
-  
-   catch (error) {
+  } catch (error) {
     console.error('Failed to update strategy:', error)
     strategy.is_active = !strategy.is_active
   }

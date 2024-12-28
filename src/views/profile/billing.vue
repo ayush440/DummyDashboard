@@ -1,18 +1,18 @@
 <template>
-  <div class="bg-[#1C1C1F] rounded-lg p-6">
+  <div class="bg-[#2a2a2c] rounded-lg mt-6 p-6">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl text-white font-medium">Billing info</h2>
       <button 
         @click="showEdit"
-        class="px-4 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] transition-colors"
+        class=""
       >
-        Create Invoice
+        <img src="/public/edit.svg" alt="">
       </button>
     </div>
 
     <div class="space-y-6">
       <div class="bg-[#2C2C30] rounded-lg p-6">
-        <div class="flex justify-center mb-6">
+        <div class="flex justify-start mb-6">
           <div class="w-32 h-32">
             <img 
               src="/public/qrcode.png" 

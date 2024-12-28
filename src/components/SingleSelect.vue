@@ -1,12 +1,14 @@
 <template>
     <div ref="dropdownRef" :id="id" class="relative single-select-dropdown" tabindex="0">
-      <div @click="toggleDropdown" class="w-full px-4 py-1 bg-secondary-light border border-primary dark:border-gray-400  focus:outline-1 focus:outline-primary rounded"
+      <div @click="toggleDropdown" class="w-full px-4 py-1 bg-[#1d1d20] border border-primary dark:border-gray-400  focus:outline-1 focus:outline-primary rounded"
            :class="{ 'cursor-not-allowed opacity-80': disabled, 'cursor-pointer': !disabled }">
         <div class="flex items-center justify-between">
-          <span v-if="!selectedOption">{{ placeholder }}</span>
+          <span v-if="!selectedOption"><span class="text-gray-400">
+            {{ placeholder }}
+          </span></span>
           <span v-else>{{ getSelectedLabel }}</span>
           <svg
-            class="w-5 h-5 ml-2 text-primary transition-transform transform"
+            class="w-5 h-5 ml-2 text-gray-200 transition-transform transform"
             :class="{ 'rotate-180': isOpen }"
             fill="none"
             stroke="currentColor"
@@ -22,14 +24,14 @@
       </div>
       <transition name="fade">
         
-        <div v-if="isOpen && !disabled" class="absolute z-10 mt-[2px] w-full max-h-56 overflow-auto text-nowrap bg-secondary border border-primary dark:border-gray-400 rounded-md shadow-xl shadow-third-bold dark:shadow-primary">
+        <div v-if="isOpen && !disabled" class="absolute z-10 mt-[2px] w-full max-h-56 overflow-auto text-nowrap bg-[#1d1d20] border border-primary dark:border-gray-400 rounded-md">
           <div
             v-if="options.length"
             v-for="option in options"
             :key="option.value"
             @click="selectOption(option)"
-            class="w-full cursor-pointer hover:bg-third dark:hover:bg-gray-300 dark:hover:text-black"
-            :class="{ 'bg-third-bold dark:bg-gray-400 dark:text-black': option.value.toString() === selectedOption.toString() }"
+            class="w-full cursor-pointer hover:bg-third text-white"
+            :class="{ 'bg-third-bold text-gray-100': option.value.toString() === selectedOption.toString() }"
           >
             <label class="flex m-0 items-center py-[2px] pl-4 cursor-pointer font-normal text-base text-tableText dark:text-white dark:hover:text-black"
             >

@@ -12,10 +12,10 @@
         <!-- Left Section - Stats Cards -->
         <div class="col-span-4 grid grid-cols-2 gap-4">
           <!-- Total Orders -->
-          <div class="bg-[#1d1d20] p-4 rounded-lg">
+          <div class="bg-[#1d1d20] p-4 rounded-lg ">
             <div class="flex flex-col gap-2">
-              <div class="w-8 h-8">
-                <ShoppingBagIcon class="w-8 h-8 text-[#8b5cf6]" />
+              <div class="">
+                <img src="/public/bag2.svg" alt="" class="" />
               </div>
               <div>
                 <h3 class="text-2xl font-bold text-white">{{ combinedTotalOrders }}</h3>
@@ -27,8 +27,8 @@
           <!-- Strategy Deployed -->
           <div class="bg-[#1d1d20] p-4 rounded-lg">
             <div class="flex flex-col gap-2">
-              <div class="w-8 h-8">
-                <PieChartIcon class="w-8 h-8 text-[#8b5cf6]" />
+              <div class="">
+                <img src="/public/Graph2.svg" alt="" class="" />
               </div>
               <div>
                 <h3 class="text-2xl font-bold text-white">{{ totalStrategies }}</h3>
@@ -40,8 +40,8 @@
           <!-- Brokers -->
           <div class="bg-[#1d1d20] p-4 rounded-lg">
             <div class="flex flex-col gap-2">
-              <div class="w-8 h-8">
-                <DiamondIcon class="w-8 h-8 text-[#8b5cf6]" />
+              <div class="">
+                <img src="/public/Handshake2.svg" alt="" class="" />
               </div>
               <div>
                 <h3 class="text-2xl font-bold text-white">{{ brokersToken.message }}</h3>
@@ -53,8 +53,8 @@
           <!-- Social Media -->
           <div class="bg-[#1d1d20] p-4 rounded-lg">
             <div class="flex flex-col gap-2">
-              <div class="w-8 h-8">
-                <BrandTelegramIcon class="w-8 h-8 text-[#8b5cf6]" />
+              <div class="">
+                <img src="/public/Social2.svg" alt="" class="" />
               </div>
               <div>
                 <h3 class="text-2xl font-bold text-white">
@@ -68,11 +68,11 @@
 
         <!-- Right Section - Profit Chart -->
         <div class="col-span-8">
-          <div class="bg-[#1d1d20] rounded-lg p-6">
-            <div class="flex gap-8">
+          <div class="bg-[#1d1d20] rounded-lg py-6">
+            <div class="flex justify-between gap-4">
               <!-- Donut Chart with Animation -->
-              <div class="relative w-[300px] h-[300px] ml-36  animate-slide-in-left">
-                <canvas ref="profitChart" class="donut-chart"></canvas>
+              <div class="relative w-[300px] h-[300px] animate-slide-in-left px-4 flex justify-center">
+                <canvas ref="profitChart" class=""></canvas>
                 <div class="absolute inset-0 flex items-center justify-center">
                   <div class="text-center">
                     <p class="text-sm text-white font-bold ">Profit</p>
@@ -85,10 +85,10 @@
 
               <!-- Legend with Animation -->
               <div class="flex-1 animate-slide-in-right">
-                <div class="space-y-4 border-b border-gray-600  p-4">
+                <div class="space-y-4   p-4">
                   <div v-for="(item, index) in displayedChartData" 
                        :key="index"
-                       class="flex items-center justify-between">
+                       class="flex items-center justify-between px-6 py-6 border-b border-gray-600">
                     <div class="flex items-center gap-2">
                       <span class="w-2 h-2 rounded-full" 
                             :style="{ backgroundColor: item.color }"></span>
@@ -409,7 +409,7 @@ const brokersToken = computed(() => {
 
 <style scoped lang="scss">
 .donut-chart-container {
-  @apply bg-[#1d1d20] rounded-lg shadow-sm p-4 sm:p-6;
+  @apply bg-[#1d1d20] rounded-lg shadow-sm p-4 sm:p-6  border border-white;
   height: 270px; /* Fixed height */
 }
 

@@ -1,16 +1,16 @@
 <template>
-  <div class="bg-[#1C1C1F] rounded-lg p-6">
+  <div class="bg-[#2a2a2c] rounded-lg mt-6 p-6">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl text-white font-medium">Social info</h2>
       <button 
         @click="toggleEdit" 
-        class="px-4 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] transition-colors"
+        class=""
       >
-        {{ isEditing ? "Editing" : "Edit" }}
+      <img v-if="!isEditing" src="/public/edit.svg" alt="">
       </button>
     </div>
 
-    <form @submit.prevent="submitSocialForm" class="space-y-6">
+    <form @submit.prevent="submitSocialForm" class="grid grid-cols-3 gap-4">
       <div>
         <label for="trading_view_id" class="block text-sm font-medium text-gray-200 mb-2">
           Tradingview ID
@@ -20,7 +20,7 @@
           id="trading_view_id"
           v-model="socialData.trading_view_id"
           :disabled="!isEditing"
-          class="w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+          class=" disabled:bg-[#222222] w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
           :placeholder="social.trading_view_id"
         />
       </div>
@@ -34,7 +34,7 @@
           id="api"
           v-model="socialData.api"
           :disabled="!isEditing"
-          class="w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+          class="disabled:bg-[#222222] w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
           :placeholder="social.api"
         />
       </div>
@@ -48,7 +48,7 @@
           id="chat_id"
           v-model="socialData.chat_id"
           :disabled="!isEditing"
-          class="w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+          class=" disabled:bg-[#222222] w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
           :placeholder="social.chat_id"
         />
       </div>
@@ -59,12 +59,11 @@
           <ButtonSwitch
             v-model="socialData.status"
             :disabled="!isEditing"
-            class="[&>*]:!bg-[#7C3AED]"
           />
         </div>
       </div>
 
-      <div class="flex justify-end gap-4" v-if="isEditing">
+      <div class="flex justify-end gap-4 col-span-2" v-if="isEditing">
         <button
           type="button"
           @click="toggleEdit"

@@ -1,5 +1,14 @@
 <template>
-  <div class=" min-h-screen bg-[#1C1C1F] text-white">
+  <div class="flex items-center gap-2 text-gray-400 px-6 py-3 mt-3">
+    <span>Home</span>
+    <span>›</span>
+    <span>Profile</span>
+  </div>
+  <!-- Header -->
+  <div class="flex justify-between items-center px-6 py-4">
+    <h1 class="text-2xl text-white">Profile</h1>
+  </div>
+  <div class="rounded-lg m-4 bg-[#1d1d20] text-white">
     <!-- Profile Header -->
     <div class="mx-auto px-4 py-8">
       <div class="mb-8">
@@ -27,8 +36,8 @@
 
       <!-- Navigation Tabs -->
       <div class="border-b border-[#2C2C30] mb-8">
-        <div class="flex space-x-8">
-          <button
+        <div class="flex justify-evenly">
+          <!-- <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="selectedTab = tab.id"
@@ -43,7 +52,23 @@
               v-if="selectedTab === tab.id"
               class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7C3AED]"
             ></div>
-          </button>
+          </button> -->
+          <a
+            v-for="tab in tabs"
+            :key="tab.id"
+            :href="tab.id"
+            class="pb-4 relative"
+            :class="selectedTab === tab.id ? 'text-white' : 'text-gray-400'"
+          >
+            <div class="flex items-center gap-2">
+              <component :is="tab.icon" class="w-5 h-5" />
+              {{ tab.name }}
+            </div>
+            <div
+              v-if="selectedTab === tab.id"
+              class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7C3AED]"
+            ></div>
+          </a>
         </div>
       </div>
 
@@ -60,26 +85,25 @@
       </div>
 
       <!-- Content Sections -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="">
         <!-- Main Content -->
-        <div v-if="selectedTab === 'personal'" class="space-y-8">
-          <editprofilevue :profile="profile" />
+        <div class="space-y-8">
+          <editprofilevue :profile="profile" id="personal" />
         </div>
-        
-        <div v-if="selectedTab === 'social'" class="space-y-8">
-          <socialvue />
+
+        <div class="space-y-8">
+          <socialvue id="social" />
         </div>
-        
-        <div v-if="selectedTab === 'billing'" class="space-y-8">
-          <billing :profile="profile" />
+
+        <div class="space-y-8">
+          <billing :profile="profile" id="billing" />
         </div>
-        
-        <div v-if="selectedTab === 'password'" class="space-y-8">
-          <changepasswordvue :profile="profile" />
+
+        <div class="space-y-8">
+          <changepasswordvue :profile="profile" id="password" />
         </div>
 
         <!-- Quote Section -->
-
       </div>
     </div>
   </div>
@@ -89,11 +113,11 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
-import { 
-  UserIcon, 
-  UsersIcon, 
-  CreditCardIcon, 
-  LockIcon, 
+import {
+  UserIcon,
+  UsersIcon,
+  CreditCardIcon,
+  LockIcon,
   MailIcon,
   CameraIcon
 } from 'lucide-vue-next'
@@ -122,10 +146,10 @@ const profile = computed(() => profileStore.profile)
 
 // Tabs Configuration
 const tabs = ref([
-  { id: 'personal', name: 'Personal Info', icon: UserIcon },
-  { id: 'social', name: 'Social Info', icon: UsersIcon },
-  { id: 'billing', name: 'Billing Info', icon: CreditCardIcon },
-  { id: 'password', name: 'Change Password', icon: LockIcon }
+  { id: '#personal', name: 'Personal Info', icon: UserIcon },
+  { id: '#social', name: 'Social Info', icon: UsersIcon },
+  { id: '#billing', name: 'Billing Info', icon: CreditCardIcon },
+  { id: '#password', name: 'Change Password', icon: LockIcon }
 ])
 
 const selectedTab = ref('personal')
@@ -139,15 +163,15 @@ onMounted(() => {
 
 // Watch invoice configurations
 watch(invoiceConfigrations, (newConfig) => {
-  const hasBilling = tabs.value.some(tab => tab.id === 'billing')
+  const hasBilling = tabs.value.some((tab) => tab.id === 'billing')
   if (Object.keys(newConfig).length && !hasBilling) {
-    tabs.value.splice(2, 0, { 
-      id: 'billing', 
-      name: 'Billing Info', 
-      icon: CreditCardIcon 
+    tabs.value.splice(2, 0, {
+      id: 'billing',
+      name: 'Billing Info',
+      icon: CreditCardIcon
     })
   } else if (!Object.keys(newConfig).length && hasBilling) {
-    tabs.value = tabs.value.filter(tab => tab.id !== 'billing')
+    tabs.value = tabs.value.filter((tab) => tab.id !== 'billing')
   }
 })
 </script>
@@ -155,6 +179,7 @@ watch(invoiceConfigrations, (newConfig) => {
 <style lang="scss" scoped>
 .min-h-screen {
   @apply bg-[#1C1C1F];
+  scroll-behavior: smooth;
 }
 
 select {

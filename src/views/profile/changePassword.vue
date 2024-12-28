@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-[#1C1C1F] rounded-lg p-6">
+  <div class="bg-[#2a2a2c] rounded-lg mt-6 p-6">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl text-white font-medium">Change password</h2>
     </div>
 
-    <form @submit.prevent="submitChangePassword" class="space-y-6">
+    <form @submit.prevent="submitChangePassword" class="grid grid-cols-3 gap-4">
       <div>
         <label for="current_password" class="block text-sm font-medium text-gray-200 mb-2">
           Current password
@@ -89,7 +89,7 @@
         </div>
       </div>
 
-      <div class="flex justify-end gap-4">
+      <div class="col-span-3 flex justify-end gap-4">
         <button
           type="button"
           @click="resetForm"

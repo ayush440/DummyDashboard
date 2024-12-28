@@ -1,7 +1,7 @@
 <template>
   <Modal1 size="3xl" :show="showAddEditModal" @close="closeModel">
     <template #header>
-      <div class="flex items-center justify-between w-full bg-black ">
+      <div class="flex items-center justify-between w-full  ">
         <h2 class="text-xl font-semibold text-gray-50">
           {{ broker.id ? `Edit Broker Info` : `Add Broker Info` }}
         </h2>
@@ -10,21 +10,21 @@
 
     <template #body>
       <form 
-        class="p-6 grid sm:grid-cols-1 md:grid-cols-2 gap-6" 
+        class="p-6 grid sm:grid-cols-1 md:grid-cols-2 gap-6 bg-[#2a2a2c]" 
         :class="formData && formData.broker_name === 'iifl' ? 'lg:grid-cols-2' : 'lg:grid-cols-3'"
         @submit.prevent="save(broker.id || 0)"
       >
         <!-- Broker Name Input -->
-        <div class="space-y-2">
-          <label for="broker_name" class="block text-sm font-medium text-gray-200">
+        <div class="space-y-2 " >
+          <label for="broker_name" class="block text-sm font-medium   text-gray-200">
             Select Broker*
           </label>
-          <div class="relative">
+          <div class="relative ">
             <SingleSelect 
               v-model.trim="validate.broker_name.$model" 
               imageShow 
               placeholder="Select a broker"
-              class="w-full bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-gray-600"
+              class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg "
             >
               <option value="">Choose a broker</option>
               <option key="zerodha" value="zerodha" image="zerodha">Zerodha</option>
@@ -59,7 +59,7 @@
             type="text"
             :disabled="(broker.id) && (!formData.is_editable)"
             name="broker_userid"
-            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+            class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
             :class="[
               { 'border-red-500': validate.broker_userid.$error },
               {'cursor-not-allowed bg-gray-700': (broker.id) && (!formData.is_editable)}
@@ -88,7 +88,7 @@
               v-model.trim="dummyBrokerPin.data" 
               type="text" 
               name="broker_pin"
-              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
               :placeholder="formData.broker_name !== 'mhtrade' ? 'Enter broker pin' : 'Enter verification code'"
             />
             <input 
@@ -97,7 +97,7 @@
               v-model.trim="validate.broker_pin.$model" 
               type="text" 
               name="broker_pin"
-              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
               :class="{ 'border-red-500': validate.broker_pin.$error }"
               :placeholder="formData.broker_name !== 'mhtrade' ? 'Enter broker pin' : 'Enter verification code'"
             />
@@ -118,7 +118,7 @@
               v-model.trim="mobileNumber" 
               type="text" 
               name="mobile"
-              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
               :class="{ 'border-red-500': validate.broker_pin.$error && mobileNumber.length !== 10 }"
               placeholder="10 digit mobile number"
             />
@@ -137,7 +137,7 @@
               v-model.trim="validate.broker_qr_key.$model"
               type="text"
               name="broker_qr_key"
-              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
               :class="{ 'border-red-500': validate.broker_qr_key.$error }"
               placeholder="enter broker qr key"
             />
@@ -158,7 +158,7 @@
               v-model.trim="validate.broker_api.$model"
               type="text"
               name="broker_api"
-              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
               :class="{ 'border-red-500': validate.broker_api.$error }"
               placeholder="enter broker api"
             />
@@ -180,7 +180,7 @@
               v-model.trim="validate.broker_api_secret.$model"
               type="text"
               name="broker_api_secret"
-              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+              class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
               :class="{ 'border-red-500': validate.broker_api_secret.$error }"
               :placeholder="formData.broker_name === 'moswal'? 'Format dd/mm/yyyy(30/01/1990)' : 'enter broker api secret'"
             />
@@ -205,7 +205,7 @@
             v-model.trim="validate.broker_password.$model"
             type="text"
             name="broker_password"
-            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+            class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
             :class="{ 'border-red-500': validate.broker_password.$error }"
             :placeholder="formData.broker_name === 'upstox' ? 'Enter redirect url' : formData.broker_name === 'swastika' ? 'Enter company source name' : 'Enter password'"
           />
@@ -226,7 +226,7 @@
             v-model.trim="validate.broker_token.$model"
             type="text"
             name="broker_token"
-            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
+            class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:ring-2 focus:ring-gray-600"
             :class="{ 'border-red-500': validate.broker_token.$error }"
             placeholder="enter access token"
           />
@@ -258,14 +258,14 @@
         >
           <button 
             type="button" 
-            class="px-6 py-2.5 text-sm font-medium text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-600" 
+            class="px-10 py-2 text-sm font-medium text-[#8B7EFF] bg-white rounded-lg hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-600" 
             @click="closeModel"
           >
             Cancel
           </button>
           <button 
             type="submit" 
-            class="px-6 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            class="px-10 py-2 text-sm font-medium text-white bg-[#8B7EFF] rounded-lg hover:bg-indigo-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
             @click="submitForm"
           >
             Submit

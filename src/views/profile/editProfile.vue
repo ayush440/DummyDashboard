@@ -1,16 +1,16 @@
 <template>
-  <div class="bg-[#1C1C1F] rounded-lg p-6">
-    <div class="flex items-center justify-between mb-6">
+  <div class="bg-[#2a2a2c] rounded-lg p-6">
+    <div class="flex items-center justify-between mb-6 ">
       <h2 class="text-xl text-white font-medium">Personal detail</h2>
       <button 
         @click="toggleEdit" 
-        class="px-4 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] transition-colors"
+        class=""
       >
-        {{ isEditing ? "Editing" : "Edit" }}
+      <img v-if="!isEditing" src="/public/edit.svg" alt="">
       </button>
     </div>
 
-    <form @submit.prevent="submitForm" class="space-y-6">
+    <form @submit.prevent="submitForm" class="grid grid-cols-3 gap-4">
       <div>
         <label for="name" class="block text-sm font-medium text-gray-200 mb-2">Full name</label>
         <input
@@ -18,7 +18,7 @@
           id="name"
           v-model="profileData.name"
           :disabled="!isEditing"
-          class="w-full  border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+          class="w-full disabled:bg-[#222222] bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
           :placeholder="profile?.name"
         />
       </div>
@@ -30,7 +30,7 @@
           id="number"
           v-model="profileData.mobile"
           :disabled="!isEditing"
-          class="w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+          class="w-full disabled:bg-[#222222] bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
         />
       </div>
 
@@ -41,19 +41,19 @@
           id="email"
           v-model="profileData.email"
           :disabled="!isEditing"
-          class="w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+          class="w-full disabled:bg-[#222222] bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
         />
       </div>
 
       <div>
         <label for="address" class="block text-sm font-medium text-gray-200 mb-2">Address</label>
-        <textarea
+        <input type="text"
           id="address"
           v-model="profileData.address"
           :disabled="!isEditing"
           rows="3"
-          class="w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
-        ></textarea>
+          class="py-2.5 w-full disabled:bg-[#222222] bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4  text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+        ></input>
       </div>
 
       <div>
@@ -63,11 +63,11 @@
           accept="image/*"
           @change="handleFileChange"
           :disabled="!isEditing"
-          class="w-full bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 py-2.5 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#7C3AED] file:text-white hover:file:bg-[#6D28D9]"
+          class="w-full disabled:bg-[#222222] bg-[#2C2C30] border border-[#3C3C40] rounded-lg px-4 text-white file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-[#7C3AED] file:text-white hover:file:bg-[#6D28D9]"
         />
       </div>
 
-      <div class="flex justify-end gap-4" v-if="isEditing">
+      <div class="flex justify-end gap-4 items-center mt-8" v-if="isEditing">
         <button
           type="button"
           @click="toggleEdit"

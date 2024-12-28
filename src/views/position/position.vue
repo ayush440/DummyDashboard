@@ -73,41 +73,26 @@
         </thead>
         <tbody>
           <template v-for="position in filteredPositions" :key="position.id">
-            <!-- Main Row -->
-            <tr>
+            <!-- Mobile View -->
+            <tr class="sm:hidden">
               <td colspan="6" class="p-0">
-                <div 
-                  class="grid grid-cols-1 sm:grid-cols-6 cursor-pointer hover:bg-[#262626] transition-colors" 
-                  :class="{'bg-[#262626]': expandedRow === position.id}"
-                  @click="toggleExpand(position.id)"
-                >
-                  <div class="py-4 px-6 text-white">
-                    <span class="sm:hidden font-medium text-gray-400">Strategy: </span>
-                    {{ position.strategy?.name || 'Multidisciplinary' }}
+                <div class="p-4 border-b border-gray-700/50">
+                  <div class="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 class="text-white font-medium">{{ position.strategy?.name || 'Multidisciplinary' }}</h3>
+                      <p class="text-gray-400 text-sm">{{ position.side }} • {{ position.quantity }}/25</p>
+                    </div>
+                    <div :class="calculatePnL(position) >= 0 ? 'text-green-400' : 'text-red-400'">
+                      {{ calculatePnL(position) >= 0 ? '+' : '' }}{{ calculatePnL(position) }}
+                    </div>
                   </div>
-                  <div class="py-4 px-6 text-white">
-                    <span class="sm:hidden font-medium text-gray-400">Side: </span>
-                    {{ position.side }}
-                  </div>
-                  <div class="py-4 px-6 sm:text-center text-white">
-                    <span class="sm:hidden font-medium text-gray-400">QTY: </span>
-                    {{ position.quantity }}/25
-                  </div>
-                  <div class="py-4 px-6 sm:text-right" :class="calculatePnL(position) >= 0 ? 'text-green-400' : 'text-red-400'">
-                    <span class="sm:hidden font-medium text-gray-400">PNL: </span>
-                    {{ calculatePnL(position) >= 0 ? '+' : '' }}{{ calculatePnL(position) }}
-                  </div>
-                  <div class="py-4 px-6 flex sm:justify-center">
-                    <span class="sm:hidden font-medium text-gray-400 mr-2">Status: </span>
+                  <div class="flex justify-between items-center mt-4">
                     <span 
-                      class="px-3 py-1 rounded-full text-xs font-medium inline-block min-w-[4rem] text-center"
+                      class="px-3 py-1 rounded-full text-xs font-medium"
                       :class="position.status === 'OPEN' ? 'bg-green-400/20 text-green-400' : 'bg-red-400/20 text-red-400'"
                     >
                       {{ position.status.toLowerCase() }}
                     </span>
-                  </div>
-                  <div class="py-4 px-6 sm:text-right">
-                    <span class="sm:hidden font-medium text-gray-400 mr-2">Action: </span>
                     <button
                       v-if="position.status === 'OPEN'"
                       @click.stop="openSquareOffModal(position)"
@@ -123,8 +108,52 @@
                 </div>
               </td>
             </tr>
-            <!-- Expanded Details -->
-            <tr v-if="expandedRow === position.id" class="bg-[#262626] border-t border-gray-700/50">
+            <!-- Desktop View -->
+            <tr class="hidden sm:table-row">
+              <td colspan="6" class="p-0">
+                <div 
+                  class="grid grid-cols-6 cursor-pointer hover:bg-[#262626] transition-colors" 
+                  :class="{'bg-[#262626]': expandedRow === position.id}"
+                  @click="toggleExpand(position.id)"
+                >
+                  <div class="py-4 px-6 text-white">
+                    {{ position.strategy?.name || 'Multidisciplinary' }}
+                  </div>
+                  <div class="py-4 px-6 text-white">
+                    {{ position.side }}
+                  </div>
+                  <div class="py-4 px-6 text-center text-white">
+                    {{ position.quantity }}/25
+                  </div>
+                  <div class="py-4 px-6 text-right" :class="calculatePnL(position) >= 0 ? 'text-green-400' : 'text-red-400'">
+                    {{ calculatePnL(position) >= 0 ? '+' : '' }}{{ calculatePnL(position) }}
+                  </div>
+                  <div class="py-4 px-6 flex justify-center">
+                    <span 
+                      class="px-3 py-1 rounded-full text-xs font-medium inline-block min-w-[4rem] text-center"
+                      :class="position.status === 'OPEN' ? 'bg-green-400/20 text-green-400' : 'bg-red-400/20 text-red-400'"
+                    >
+                      {{ position.status.toLowerCase() }}
+                    </span>
+                  </div>
+                  <div class="py-4 px-6 text-right">
+                    <button
+                      v-if="position.status === 'OPEN'"
+                      @click.stop="openSquareOffModal(position)"
+                      class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#7C3AED] bg-[#1d1d20]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20 transition-colors"
+                    >
+                      <span>Square Off</span>
+                      <img src="/public/off.png" alt="Square Off" class="w-4 h-4">
+                    </button>
+                    <span v-else class="text-gray-500 text-sm">
+                      Closed at {{ new Date(position.updated_at).toLocaleTimeString() }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!-- Expanded Details (Desktop Only) -->
+            <tr v-if="expandedRow === position.id" class="hidden sm:table-row bg-[#262626] border-t border-gray-700/50">
               <td colspan="6" class="py-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 px-6 gap-4 sm:gap-6">
                   <div class="space-y-1">

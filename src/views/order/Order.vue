@@ -123,23 +123,35 @@
       </div>
 
       <!-- Mobile Order List -->
-      <div class="md:hidden bg-[#1d1d20] rounded-b-lg divide-y divide-gray-800">
+      <div class="md:hidden bg-[#1d1d20] rounded-b-lg ">
         <template v-if="filteredOrders.length > 0">
+              <div class="flex justify-between items-start mb-2 bg-[#262626] w-[95%] mx-auto rounded-lg p-3 px-10">
+                <div class="text-[#9C9393]">
+                  Strategy
+                </div>
+                <div class="text-[#9C9393]">
+                  Price
+                </div>
+                <div class="text-[#9C9393]">
+                  Status
+                </div>
+              </div>
           <div 
             v-for="order in filteredOrders" 
             :key="order.serialNo"
-            class="p-4 flex items-center justify-between"
+            class=" py-2 pl-10 flex items-center justify-between w-[95%] mx-auto cursor-pointer border-b border-[#343437]"
             @click="showOrderDetails(order)"
           >
             <div class="flex-1">
               <div class="flex justify-between items-start mb-2">
                 <span class="text-white">{{ order.strategy?.name || '--' }}</span>
+                <div class="text-gray-400">₹{{ order.status === 'COMPLETE' && (order.order_type === 'MARKET' || order.order_type === 'MKT') ? 
+                order.average_price : order.price }}</div>
                 <span :class="getStatusClasses(order.status)">
                   {{ order.status || '--' }}
                 </span>
               </div>
-              <div class="text-gray-400">₹{{ order.status === 'COMPLETE' && (order.order_type === 'MARKET' || order.order_type === 'MKT') ? 
-                order.average_price : order.price }}</div>
+              
             </div>
             <ChevronRight class="text-gray-400 w-5 h-5 ml-4" />
           </div>
@@ -182,42 +194,42 @@
 
     <!-- Order Details Modal -->
     <Transition name="slide-up">
-      <div v-if="selectedOrder" class="fixed inset-x-0 bottom-0 z-50 bg-[#1d1d20] rounded-t-2xl md:hidden" style="height: 40vh">
-        <div class="relative h-full p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-medium text-white">{{ selectedOrder.strategy?.name || 'Multidisciplinary' }}</h3>
+      <div v-if="selectedOrder" class="fixed inset-x-0 bottom-0 z-50 bg-[#2a2a2c] rounded-t-2xl md:hidden" style="max-height: 80vh; overflow-y: auto;">
+        <div class="relative rounded-lg">
+          <div class="sticky top-0 flex justify-between p-3 rounded-t-lg items-center mb-6 bg-[#1d1d20]">
+            <h3 class="text-lg font-bold text-white">{{ selectedOrder.strategy?.name || 'Multidisciplinary' }}</h3>
             <button @click="selectedOrder = null" class="text-gray-400">
               <X class="w-5 h-5" />
             </button>
           </div>
           
-          <div class="space-y-4 ">
-            <div class="flex justify-between items-center ">
+          <div class="space-y-4 px-3 pb-6">
+            <div class="flex justify-between items-center border-b pb-2 border-[#343437]">
               <span class="text-gray-400">Broker</span>
               <span class="text-white">{{ selectedOrder.broker?.broker_name || '--' }}</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center border-b pb-2 border-[#343437]">
               <span class="text-gray-400">Time</span>
               <span class="text-white">{{ formatTime(selectedOrder.created_at) || '--' }}</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center border-b pb-2 border-[#343437]">
               <span class="text-gray-400">Script</span>
               <span class="text-white">{{ selectedOrder.tradingsymbol || '--' }}</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center border-b pb-2 border-[#343437]">
               <span class="text-gray-400">Side</span>
               <span class="text-white">{{ selectedOrder.transaction_type || '--' }}</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center border-b pb-2 border-[#343437]">
               <span class="text-gray-400">QTY</span>
               <span class="text-white">{{ selectedOrder.quantity || '0' }}/25</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center border-b pb-2 border-[#343437]">
               <span class="text-gray-400">Price</span>
               <span class="text-white">₹{{ selectedOrder.status === 'COMPLETE' && (selectedOrder.order_type === 'MARKET' || selectedOrder.order_type === 'MKT') ? 
                 selectedOrder.average_price : selectedOrder.price }}</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center border-b pb-2 border-[#343437]">
               <span class="text-gray-400">Status</span>
               <span :class="getStatusClasses(selectedOrder.status)">
                 {{ selectedOrder.status || '--' }}
@@ -255,7 +267,7 @@ const filters = ref({
 
 // Status styling function
 const getStatusClasses = (status: string) => {
-  const baseClasses = 'px-3 py-1 rounded-full text-sm'
+  const baseClasses = 'px-3 py-2 rounded-lg text-xs'
   switch (status) {
     case 'COMPLETE':
       return `${baseClasses} bg-green-500/20 text-green-500`
@@ -265,8 +277,7 @@ const getStatusClasses = (status: string) => {
       return `${baseClasses} bg-red-500/20 text-red-500`
     default:
       return baseClasses
-  }
-}
+  }}
 
 // Order details handler
 const showOrderDetails = (order: any) => {
@@ -361,11 +372,20 @@ const formatTime = (dateString: string) => {
 /* Slide Up Transitions */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .slide-up-enter-from,
 .slide-up-leave-to {
   transform: translateY(100%);
+  opacity: 0;
+}
+
+/* Ensure smooth scrolling on mobile */
+@media (max-width: 767px) {
+  .fixed {
+    -webkit-overflow-scrolling: touch;
+  }
 }
 </style>
+

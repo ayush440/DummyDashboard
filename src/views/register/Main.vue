@@ -1,152 +1,184 @@
 <template>
-  <div class="h-screen bg-white text-color">
-    <div class=" relative h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <div class="min-h-screen w-full flex items-center justify-center bg-[#1E1E1E] relative overflow-hidden">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+      <img src="/public/registerbg.jpg" alt="" class="w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    </div>
 
-      <!-- Left Section: Background and Content -->
-      <div class="hidden lg:flex flex-col justify-center relative">
-        <!-- Background Image -->
-        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('/bg.webp');"></div>
-        <!-- Glass Effect Overlay -->
-        <div class="absolute inset-0 backdrop-blur-sm bg-black bg-opacity-50"></div>
-
+    <!-- Main Content -->
+    <div class="w-full max-w-3xl mx-auto p-4 relative z-10">
+      <!-- Form Container -->
+      <div class="bg-[#1E1E1E] rounded-xl p-8 backdrop-blur-md bg-opacity-95 shadow-2xl">
         <!-- Logo -->
-        <div class="absolute top-4 left-4 z-50">
-          <a href="#" class="flex items-center logo w-[249px] h-16 rounded-md  justify-center">
-            <logoComp />
-          </a>
-        </div>
+        <img src="/public/InfinityParker.png" alt="" class="mx-auto mb-8" />
+        
+        <h1 class="text-3xl font-bold text-white text-center mb-2">Create an account</h1>
+        <p class="text-gray-400 max-w-md mx-auto text-center mb-8">
+          Lorem ipsum dolor sit amet consectetur. Semper eget cursus aliquam enim nibh vel vestibulum
+        </p>
 
-        <!-- Content -->
-        <div class="relative z-10 flex flex-col items-center text-center text-white px-8 py-12 space-y-6">
-          <h2 class="text-4xl font-bold">Welcome to Our Platform!</h2>
-          <p class="text-lg max-w-lg">
-            Create an account to personalize your dashboard and explore the latest features.
-          </p>
-          <ul class="space-y-2 text-sm max-w-md mx-auto">
-            <li class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-green-300" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.25 11.03L3.5 8.28l.93-.93L6.25 9.16l4.32-4.32.93.93-5.25 5.25z"/>
-              </svg>
-              Easy Account Creation
-            </li>
-            <li class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-green-300" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.25 11.03L3.5 8.28l.93-.93L6.25 9.16l4.32-4.32.93.93-5.25 5.25z"/>
-              </svg>
-              Secure Registration
-            </li>
-            <li class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-green-300" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.25 11.03L3.5 8.28l.93-.93L6.25 9.16l4.32-4.32.93.93-5.25 5.25z"/>
-              </svg>
-              Enhanced User Experience
-            </li>
-          </ul>
-        </div>
-      </div>
+        <!-- Error Message -->
+        <div v-if="error" class="text-red-500 text-center mb-4">⚠️ {{ error }}</div>
 
-      <!-- Right Section: Sign-Up Form -->
-      <div class="flex justify-center  w-full  items-center">
-        <div class="rounded-lg  w-full bg-third bg-opacity-95 mx-2   p-6">
-          <!-- Mobile Logo -->
-          <div class="lg:hidden flex justify-center mb-5">
-            <a href="#" class="flex items-center logo w-[249px] h-16 rounded-md justify-center">
-              <logoComp />
-            </a>
+        <!-- Registration Form -->
+        <form v-if="!receivedOtp" @submit.prevent="signUp" class="space-y-6">
+          <!-- Full Name -->
+          <div class="space-y-2 mx-20 ">
+            <label class="block text-white">Full name</label>
+            <input
+              v-model="validateSignUp.name.$model"
+              type="text"
+              class="w-full px-4 py-3 rounded-lg bg-white border-0 focus:ring-2 focus:ring-[#8B5CF6]"
+              placeholder="Enter your full name"
+            />
           </div>
 
-          <!-- Sign-Up Form -->
-          <div>
-            <h1 class="text-3xl font-bold text-center mb-2">Sign Up</h1>
-            <p class="text-center mb-2">Please enter your details below.</p>
-            <div class="text-red-500 text-center mb-4" v-if="error">⚠️ {{ error }}</div>
-            <div class="mt-8" v-else></div>
-
-            <form v-if="!receivedOtp" class= "input-box" @submit.prevent="signUp">
-              <div class="space-y-4">
-                <!-- Name -->
-                <div>
-                  <label class="block text-sm">Full Name</label>
-                  <input v-model="validateSignUp.name.$model" type="text" class="w-full h-10 rounded border-1 pl-2 bg-secondary" placeholder="Enter your full name" />
-                </div>
-                <!-- Email -->
-                <div>
-                  <label class="block text-sm">Email</label>
-                  <input v-model="validateSignUp.email.$model" type="email" class="w-full h-10 rounded border-1 pl-2 bg-secondary" placeholder="Enter your email" />
-                </div>
-                <!-- Mobile -->
-                <div>
-                  <label class="block text-sm">Mobile</label>
-                  <input v-model="validateSignUp.mobile.$model" type="text"  @input="signUpData.mobile = signUpData.mobile.replace(/[^0-9]/g, '')" class="w-full h-10 rounded border-1 pl-2 bg-secondary" placeholder="Enter your mobile number" />
-                </div>
-
-                <!-- Password -->
-                <div class="relative">
-                  <label class="block text-sm">Password</label>
-                  <input v-model="validateSignUp.password.$model" :type="passwordFields.password ? 'text' : 'password'" class="w-full h-10 relative rounded border-1 pl-2 bg-secondary" placeholder="Enter your password" />
-                  <span @click="togglePasswordVisibility('password')" class="absolute right-4 top-11 transform -translate-y-1/2 cursor-pointer">
-                    <EyeOffIcon v-if="passwordFields.password" class="w-5" />
-                    <EyeIcon v-else class="w-5" />
-                  </span>
-                </div>
-
-                <div class="relative">
-                  <label class="block text-sm">Confirm Password</label>
-                  <input v-model="validateSignUp.confirm_password.$model" :type="passwordFields.confirm_password ? 'text' : 'password'" class="w-full h-10 relative rounded border-1 pl-2 bg-secondary" placeholder="Enter your password" />
-                  <span @click="togglePasswordVisibility('confirm_password')" class="absolute right-4 top-11 transform -translate-y-1/2 cursor-pointer">
-                    <EyeOffIcon v-if="passwordFields.confirm_password" class="w-5" />
-                    <EyeIcon v-else class="w-5" />
-                  </span>
-                </div>
-                <span v-if="signUpData.confirm_password.length > 3 && !characterMatch" class="text-red-500 text-sm">Password not matching </span>
-              </div>
-              <!-- Terms -->
-              <div class="flex items-center mt-4">
-                <div class="mt-1"><CheckBox v-model="checkbox" class="w-4 h-4" /></div>
-                <p class="text-sm ml-2">
-                  I agree to the <a href="#" class="underline">T&C</a> and <a href="#" class="underline">Privacy Policy</a>.
-                </p>
-              </div>
-              <!-- Submit Button -->
-              <div class="mt-6 flex flex-col space-y-4">
-                <button type="submit" :disabled="!checkbox || !characterMatch" class="w-full h-10 bg-black text-white rounded-lg font-bold">
-                  Register
-                </button>
-                <button @click="handleToggle" type="button" class="w-full h-10 bg-gray-200 text-black rounded-lg font-bold">
-                  Login
-                </button>
-              </div>
-            </form>
-
-
-            <form v-else class= "input-box" @submit.prevent="verifyOtp">
-              <div class="space-y-8">
-                <div class="input-box flex flex-col m-4 mt-4 pb-4">
-                  <label for="6digit" class="otp text-[16px] text-gray-700 font-thin">Please check your registered email for the OTP.</label>
-                  <input type="text" name="6digit"
-                    v-model.trim="otpData.otp"  @input="otpData.otp = otpData.otp.replace(/[^0-9]/g, '')"
-                    class="rounded border-2 pl-1 h-10" />
-                </div>
-              </div>
-
-              <!-- Submit Button -->
-              <div class="mt-6 flex flex-col space-y-4">
-                <button type="submit" :disabled="!otpData.otp || otpData.otp.length < 5" class="w-full h-10 bg-black text-white rounded-lg font-bold">
-                  Confirm
-                </button>
-                <button @click="receivedOtp = false" type="button" class="w-full h-10 bg-gray-200 text-black rounded-lg font-bold">
-                  Back
-                </button>
-              </div>
-            </form>
-
+          <!-- Email -->
+          <div class="space-y-2 mx-20">
+            <label class="block text-white">Email</label>
+            <input
+              v-model="validateSignUp.email.$model"
+              type="email"
+              class="w-full px-4 py-3 rounded-lg bg-white border-0 focus:ring-2 focus:ring-[#8B5CF6]"
+              placeholder="Enter your email"
+            />
           </div>
-        </div>
+
+          <!-- Number -->
+          <div class="space-y-2 mx-20">
+            <label class="block text-white">Number</label>
+            <input
+              v-model="validateSignUp.mobile.$model"
+              type="text"
+              @input="signUpData.mobile = signUpData.mobile.replace(/[^0-9]/g, '')"
+              class="w-full px-4 py-3 rounded-lg bg-white border-0 focus:ring-2 focus:ring-[#8B5CF6]"
+              placeholder="Enter your mobile number"
+            />
+          </div>
+
+          <!-- Password -->
+          <div class="space-y-2 mx-20">
+            <label class="block text-white">Password</label>
+            <div class="relative">
+              <input
+                v-model="validateSignUp.password.$model"
+                :type="passwordFields.password ? 'text' : 'password'"
+                class="w-full px-4 py-3 rounded-lg bg-white border-0 focus:ring-2 focus:ring-[#8B5CF6]"
+                placeholder="Create a password"
+              />
+              <button 
+                type="button"
+                @click="togglePasswordVisibility('password')"
+                class="absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                <EyeOffIcon v-if="passwordFields.password" class="w-5 h-5 text-gray-500" />
+                <EyeIcon v-else class="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="space-y-2 mx-20">
+            <label class="block text-white">Confirm password</label>
+            <div class="relative">
+              <input
+                v-model="validateSignUp.confirm_password.$model"
+                :type="passwordFields.confirm_password ? 'text' : 'password'"
+                class="w-full px-4 py-3 rounded-lg bg-white border-0 focus:ring-2 focus:ring-[#8B5CF6]"
+                placeholder="Confirm your password"
+              />
+              <button 
+                type="button"
+                @click="togglePasswordVisibility('confirm_password')"
+                class="absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                <EyeOffIcon v-if="passwordFields.confirm_password" class="w-5 h-5 text-gray-500" />
+                <EyeIcon v-else class="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <span v-if="signUpData.confirm_password.length > 3 && !characterMatch" class="text-red-500 text-sm">
+              Password not matching
+            </span>
+          </div>
+
+          <!-- Terms & Conditions -->
+          <div class="flex items-center gap-2 mx-20">
+            <CheckBox 
+              v-model="checkbox" 
+              name="T&C" 
+              id="T&C"
+              class="rounded border-gray-400 text-[#8B5CF6] focus:ring-[#8B5CF6]"
+            />
+            <label class="text-gray-400 text-sm">
+              I agree...
+              <a :href="tncUrl" target="_blank" class="text-white hover:underline">T&C</a>
+              and
+              <a :href="privacyPolicyUrl" target="_blank" class="text-white hover:underline">Privacy policy</a>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-center items-center mx-20">
+            <button
+            type="submit"
+            :disabled="!checkbox || !characterMatch"
+            class="w-full py-3 rounded-lg bg-[#8B5CF6] text-white font-medium transition-opacity"
+            :class="(!checkbox || !characterMatch) ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'"
+          >
+            Sign up
+          </button>
+</div>
+
+         
+
+          <!-- Login Link -->
+          <div class="text-center text-gray-400">
+            Already have an account?
+            <button 
+              @click="handleToggle"
+              class="text-white hover:underline bg-transparent border-none p-0 ml-1 cursor-pointer"
+            >
+              Login
+            </button>
+          </div>
+        </form>
+
+        <!-- OTP Verification Form -->
+        <form v-else @submit.prevent="verifyOtp" class="space-y-6">
+          <div class="space-y-2">
+            <label class="block text-white">Enter OTP</label>
+            <input
+              type="text"
+              v-model.trim="otpData.otp"
+              @input="otpData.otp = otpData.otp.replace(/[^0-9]/g, '')"
+              class="w-full px-4 py-3 rounded-lg bg-white border-0 focus:ring-2 focus:ring-[#8B5CF6]"
+              placeholder="Enter the OTP sent to your email"
+              maxlength="6"
+            />
+          </div>
+
+          <button
+            type="submit"
+            :disabled="!otpData.otp || otpData.otp.length < 5"
+            class="w-full py-3 rounded-lg bg-[#8B5CF6] text-white font-medium transition-opacity"
+            :class="(!otpData.otp || otpData.otp.length < 5) ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'"
+          >
+            Verify OTP
+          </button>
+
+          <button
+            @click="receivedOtp = false"
+            type="button"
+            class="w-full py-3 rounded-lg bg-gray-200 text-gray-900 font-medium hover:bg-gray-300"
+          >
+            Back
+          </button>
+        </form>
       </div>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, reactive, computed, watchEffect, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'

@@ -125,20 +125,20 @@
             <button 
               v-if="!strategy.is_deployed"
               @click="deployStrategy(strategy)"
-              class="w-full py-2.5 rounded-md text-sm font-medium bg-[#4A4AFF] hover:bg-[#3A3AFF] text-white transition-colors"
+              class="w-full py-2.5 rounded-md text-sm font-medium bg-[#1d1d20] border border-[#8b7eff] hover:bg-[#8b7eff] text-[#8b7eff] hover:text-white transition-colors"
             >
               Deploy
             </button>
             <template v-else>
               <button 
                 @click="removeStrategy(strategy)"
-                class="w-full py-2.5 rounded-md text-sm font-medium border border-[#4A4AFF] text-[#4A4AFF] hover:bg-[#4A4AFF] hover:text-white transition-colors"
+                class="w-full py-2.5 rounded-md text-sm font-medium border border-[#cd201f] text-[#cd201f] hover:bg-[#cd201f] hover:text-white transition-colors"
               >
                 Remove
               </button>
               <button 
                 disabled
-                class="w-full py-2.5 rounded-md text-sm font-medium bg-gray-700 text-gray-400 cursor-not-allowed"
+                class="w-full py-2.5 rounded-md text-sm font-medium bg-[#1d1d20] border border-gray-700 text-gray-400 cursor-not-allowed"
               >
                 Deployed
               </button>
@@ -165,6 +165,7 @@ import { makeRequest } from "@/request/request"
 
 // Store initialization
 const strategiesStore = useStrategiesStore()
+const matrixJoinerStore = useMatrixJoinersStore();
 const profileStore = useProfileStore()
 const { strategies, plans, stratgyJoinedPlans } = storeToRefs(strategiesStore)
 
@@ -273,10 +274,10 @@ const filteredStrategies = computed(() => {
   // Apply strategy type filters
   if (!filters.value.all) {
     if (filters.value.myStrategies) {
-      filtered = filtered.filter(strategy => isDeplo)
+      filtered = filtered.filter(strategy => strategy.is_deployed)
     }
     if (filters.value.otherStrategies) {
-      filtered = filtered.filter(strategy => strategy.user_id !== userId.value)
+      filtered = filtered.filter(strategy => strategy.is_deployed === false)
     }
     if (!filters.value.myStrategies && !filters.value.otherStrategies) {
       filtered = []
@@ -310,13 +311,16 @@ const getSymbolClass = (symbol: string) => {
 // Handle strategy deployment
 const deployStrategy = async (strategy: any) => {
   try {
-    await strategiesStore.addEditMatrixJoiner(0, {
+    matrixJoinerStore.addEditMatrixJoinerData = {
       strategy_id: strategy.id,
-      is_deployed: true,
-      is_active: true,
-      lots: strategy.lots || 1,  // Default to 1 if not specified
-      re_entry: strategy.re_entry || false  // Default to false if not specified
-    })
+      broker_id: 0,
+      lots: 0,
+      re_entry: 0,
+      is_active: false,
+      id: 0
+    };
+    
+    matrixJoinerStore.showAddEditModal = true
     await strategiesStore.getStrategies()
   } catch (error) {
     console.error('Failed to deploy strategy:', error)
@@ -330,7 +334,7 @@ const removeStrategy = async (strategy: any) => {
       (joined: any) => joined.strategy_id === strategy.id
     )
     if (joinedStrategy) {
-      await strategiesStore.deleteMatrixJoiner(joinedStrategy.id)
+      await matrixJoinerStore.deleteMatrixJoiner(joinedStrategy.id)
       await strategiesStore.getStrategies()
     }
   } catch (error) {

@@ -1,5 +1,5 @@
 <template>
-  <div :class="[isDashboard ? 'flex' : 'hidden md:flex']" class="border border-gray-600 bg-[#1D1D20] w-auto justify-between items-center flex-wrap space-y-1 pl-4 md:pl-10 pr-2 md:pr-4 py-3 md:py-4">
+  <div :class="[isDashboard ? 'flex' : 'hidden md:flex']" class="border border-gray-600 bg-[#1D1D20] w-auto justify-between items-center flex-wrap space-y-1 pl-4 md:pl-10 pr-2 md:pr-4 py-3 md:py-4 hidden md:flex">
     <!-- Page Name -->
     <div class="unselectable capitalize font-bold text-lg sm:text-2xl text-white dark:text-tableText flex items-center gap-4"> 
       <!-- <span v-if="!isDashboard">{{ title }}</span>
@@ -96,23 +96,17 @@
               </div>
             </div>
           </template>
-          <template #dropdown-body>
-            <div class="font-bold text-xl">Profile</div>
-            <div class="font-medium capitalize pb-2">
-              {{ profile?.name }} <br>
-              <span class="text-sm lowercase">{{ profile?.email }}</span>
-            </div>
+          <template #dropdown-body id="dropdown">
+            
             <div @click="clickProfile" class="profile-option">
-              <UserIcon class="icon-size ml-0" />My Profile
+              View Profile
             </div>
             <div @click="clickRefresh" class="profile-option">
-              <RefreshCwIcon class="icon-size p-[1px] ml-0" />Refresh
+              Terms & Conditions
             </div>
-            <div class="profile-option">
-              <HelpCircleIcon class="icon-size ml-0" />Help
-            </div>
+            
             <div class="profile-option" @click="logout">
-              <LockIcon class="icon-size ml-0" />Logout
+              Logout
             </div>
           </template>
         </PopupDropdown>
@@ -227,10 +221,11 @@ const clickRefresh = () => {
 
 <style scoped>
 .profile-option {
-  @apply flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer;
+  @apply flex items-center gap-2 px-4 py-2 text-sm text-white transition-all duration-150 hover:bg-[#343437]  cursor-pointer rounded-md;
 }
 
 .icon-size {
   @apply w-4 h-4;
 }
+
 </style>

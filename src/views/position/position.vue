@@ -1,19 +1,19 @@
 <template>
-  <div class="min-h-screen bg-[#2a2a2c] p-6">
-    <!-- Breadcrumb - Improved spacing -->
-    <nav class="flex items-center gap-2 text-gray-400 mb-6">
+  <div class="min-h-screen bg-[#2a2a2c] p-4 sm:p-6">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">
       <span>Home</span>
       <span class="text-gray-600">›</span>
       <span>Positions</span>
     </nav>
 
-    <!-- Header Section - Better spacing and alignment -->
-    <h1 class="text-white text-2xl mb-6">Positions</h1>
+    <!-- Header Section -->
+    <h1 class="text-white text-xl sm:text-2xl mb-4 sm:mb-6">Positions</h1>
     
-    <!-- Search and Filters - Improved layout -->
-    <div class="flex justify-between items-center p-4 rounded-t-lg bg-[#1c1c1f]">
-      <!-- Search - Consistent spacing -->
-      <div class="relative w-64">
+    <!-- Search and Filters -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 rounded-t-lg bg-[#1c1c1f] gap-4 sm:gap-0">
+      <!-- Search -->
+      <div class="relative w-full sm:w-64">
         <input
           type="text"
           placeholder="Search"
@@ -23,10 +23,10 @@
         <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
       </div>
 
-      <!-- Filters - Better alignment -->
-      <div class="flex items-center gap-6">
-        <span class="text-gray-400">Showing position type:</span>
-        <div class="flex gap-4">
+      <!-- Filters -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-6 w-full sm:w-auto">
+        <span class="text-gray-400 text-sm">Showing position type:</span>
+        <div class="flex flex-wrap gap-4">
           <label class="flex items-center gap-2 cursor-pointer">
             <input 
               type="checkbox" 
@@ -34,7 +34,7 @@
               @change="handleFilterChange('all')"
               class="form-checkbox" 
             />
-            <span class="text-gray-400">All</span>
+            <span class="text-gray-400 text-sm">All</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input 
@@ -43,7 +43,7 @@
               @change="handleFilterChange('open')"
               class="form-checkbox" 
             />
-            <span class="text-gray-400">Open</span>
+            <span class="text-gray-400 text-sm">Open</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input 
@@ -52,16 +52,16 @@
               @change="handleFilterChange('closed')"
               class="form-checkbox" 
             />
-            <span class="text-gray-400">Closed</span>
+            <span class="text-gray-400 text-sm">Closed</span>
           </label>
         </div>
       </div>
     </div>
 
-    <!-- Table - Improved cell alignment -->
-    <div class="bg-[#1d1d20] rounded-b-lg overflow-hidden">
+    <!-- Table -->
+    <div class="bg-[#1d1d20] rounded-b-lg overflow-x-auto">
       <table class="w-full border-collapse">
-        <thead>
+        <thead class="hidden sm:table-header-group">
           <tr class="text-gray-400 text-sm border-b border-gray-700">
             <th class="py-4 px-6 text-left font-medium">Strategy</th>
             <th class="py-4 px-6 text-left font-medium">Side</th>
@@ -73,21 +73,32 @@
         </thead>
         <tbody>
           <template v-for="position in filteredPositions" :key="position.id">
-            <!-- Main Row - Consistent spacing -->
+            <!-- Main Row -->
             <tr>
               <td colspan="6" class="p-0">
                 <div 
-                  class="grid grid-cols-6 cursor-pointer hover:bg-[#262626] transition-colors" 
+                  class="grid grid-cols-1 sm:grid-cols-6 cursor-pointer hover:bg-[#262626] transition-colors" 
                   :class="{'bg-[#262626]': expandedRow === position.id}"
                   @click="toggleExpand(position.id)"
                 >
-                  <div class="py-4 px-6 text-white">{{ position.strategy?.name || 'Multidisciplinary' }}</div>
-                  <div class="py-4 px-6 text-white">{{ position.side }}</div>
-                  <div class="py-4 px-6 text-center text-white">{{ position.quantity }}/25</div>
-                  <div class="py-4 px-6 text-right" :class="calculatePnL(position) >= 0 ? 'text-green-400' : 'text-red-400'">
+                  <div class="py-4 px-6 text-white">
+                    <span class="sm:hidden font-medium text-gray-400">Strategy: </span>
+                    {{ position.strategy?.name || 'Multidisciplinary' }}
+                  </div>
+                  <div class="py-4 px-6 text-white">
+                    <span class="sm:hidden font-medium text-gray-400">Side: </span>
+                    {{ position.side }}
+                  </div>
+                  <div class="py-4 px-6 sm:text-center text-white">
+                    <span class="sm:hidden font-medium text-gray-400">QTY: </span>
+                    {{ position.quantity }}/25
+                  </div>
+                  <div class="py-4 px-6 sm:text-right" :class="calculatePnL(position) >= 0 ? 'text-green-400' : 'text-red-400'">
+                    <span class="sm:hidden font-medium text-gray-400">PNL: </span>
                     {{ calculatePnL(position) >= 0 ? '+' : '' }}{{ calculatePnL(position) }}
                   </div>
-                  <div class="py-4 px-6 flex justify-center">
+                  <div class="py-4 px-6 flex sm:justify-center">
+                    <span class="sm:hidden font-medium text-gray-400 mr-2">Status: </span>
                     <span 
                       class="px-3 py-1 rounded-full text-xs font-medium inline-block min-w-[4rem] text-center"
                       :class="position.status === 'OPEN' ? 'bg-green-400/20 text-green-400' : 'bg-red-400/20 text-red-400'"
@@ -95,14 +106,15 @@
                       {{ position.status.toLowerCase() }}
                     </span>
                   </div>
-                  <div class="py-4 px-6 text-right">
+                  <div class="py-4 px-6 sm:text-right">
+                    <span class="sm:hidden font-medium text-gray-400 mr-2">Action: </span>
                     <button
                       v-if="position.status === 'OPEN'"
                       @click.stop="openSquareOffModal(position)"
                       class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#7C3AED] bg-[#1d1d20]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20 transition-colors"
                     >
                       <span>Square Off</span>
-                      <ChevronDownIcon class="w-4 h-4" :class="{'rotate-180': expandedRow === position.id}" />
+                      <img src="/public/off.png" alt="Square Off" class="w-4 h-4">
                     </button>
                     <span v-else class="text-gray-500 text-sm">
                       Closed at {{ new Date(position.updated_at).toLocaleTimeString() }}
@@ -111,10 +123,10 @@
                 </div>
               </td>
             </tr>
-            <!-- Expanded Details - Improved grid layout -->
+            <!-- Expanded Details -->
             <tr v-if="expandedRow === position.id" class="bg-[#262626] border-t border-gray-700/50">
               <td colspan="6" class="py-4">
-                <div class="grid grid-cols-5 px-6 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 px-6 gap-4 sm:gap-6">
                   <div class="space-y-1">
                     <div class="text-gray-400 text-sm">Script</div>
                     <div class="text-white">{{ position.strategy?.script || 'Nifty36FDWTE72' }}</div>
@@ -151,7 +163,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { SearchIcon, ChevronDownIcon } from 'lucide-vue-next'
+import { SearchIcon } from 'lucide-vue-next'
 import { usePositionsStore } from '@/stores/matrix/position'
 import { useManualPositionsStore } from '@/stores/groups/manualPosition'
 import { useProfileStore } from '@/stores/matrix/profile'

@@ -1,55 +1,32 @@
 <template>
   <div class="relative">
-    <!-- Mobile toggle button (visible only on small screens) -->
-    <!-- <button
-      @click="toggleSidebar"
-      class="fixed top-4 left-4 z-50 md:hidden bg-white p-2 rounded-md shadow-md"
-    >
-      <MenuIcon v-if="!isOpen" class="w-6 h-6" />
-      <XIcon v-else class="w-6 h-6" />
-    </button> -->
-
-    <!-- Sidebar -->
     <div 
       :class="[
         'fixed inset-y-0 left-0 z-40 bg-[#1d1d20] shadow-lg transform transition-all duration-300 ease-in-out overflow-hidden',
         isOpen ? 'translate-x-0' : '-translate-x-full',
         'md:translate-x-0',
-        'md:w-[68px]', // Fixed width for icon-only view on md screens
-        'xl:w-64' // Expanded width for xl screens and above
+        'md:w-[68px]',
+        'xl:w-64'
       ]"
     >
       <div class="flex flex-col h-full">
         <!-- Header -->
         <div class="flex-shrink-0 p-3 xl:p-4 xl:py-3 border-b border-gray-200">
-    <div class="flex items-center justify-center xl:justify-start">
-      <RouterLink to="/" class="relative flex items-center justify-center w-16 sm:w-20 xl:w-[233px] h-16 xl:h-[70px] overflow-hidden">
-        <!-- Desktop Image (xl screens and above) -->
-        <img 
-          src="" 
-          alt=" Logo Here"
-          class="hidden xl:block w-full h-full max-h-20 object-contain"
-        />
-
-        <!-- Tablet Image (sm to lg screens) -->
-        <img 
-          src="@/assets/img/mdlogo.png" 
-          alt="HiFi Logo Tablet"
-          class="hidden sm:block xl:hidden w-full h-full max-h-20 object-contain"
-        />
-
-       
-
-        <!-- Fallback text if images fail to load -->
-        <!-- <div 
-          v-if="!imgLoad" 
-          class="flex w-full font-bold justify-center mt-[-5px] text-3xl text-gray-600 dark:text-tableText"
-        >
-          {{  }}
-        </div> -->
-      </RouterLink>
-    </div>
-  </div>
+          <div class="flex items-center justify-center xl:justify-start">
+            <RouterLink to="/" class="relative flex items-center justify-center w-16 sm:w-20 xl:w-[233px] h-16 xl:h-[70px] overflow-hidden">
+              <img 
+                src="/public/InfinityParker.png" 
+                alt="Logo"
+                class="hidden xl:block w-full h-full max-h-20 object-contain"
+              />
+              <img 
+                src="/public/InfinityParker.png" 
+                alt="Logo Tablet"
+                class="hidden sm:block xl:hidden w-full h-full max-h-20 object-contain"
+              />
+            </RouterLink>
+          </div>
+        </div>
         
         <!-- Navigation -->
         <nav class="flex-1 overflow-y-auto scrollbar-hide">
@@ -68,11 +45,29 @@
               <span class="ml-3 truncate xl:inline hidden">{{ item.title }}</span>
             </router-link>
           </div>
+          <div class=" hidden  mx-4 rounded-xl bg-gradient-to-br from-[#8B7EFF] to-[#B6A4FE] p-4 xl:flex  flex-col justify-between transform transition-all duration-300 hover:scale-[1.02]">
+            <div class="text-white">
+              <h3 class="text-xl font-semibold mb-1">Elite</h3>
+              <p class="text-sm opacity-90">Your Current Plan Expires on</p>
+              <p class="text-sm font-medium">27 July 2024</p>
+            </div>
+            <button 
+              @click="handleUpgrade"
+              class="w-full bg-white text-[#8B7EFF] py-2 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors mt-4"
+            >
+              Upgrade Now
+            </button>
+          </div>
         </nav>
+
+        <!-- Elite Subscription Box -->
+        <div class=" ">
+         
+        </div>
       </div>
     </div>
 
-    <!-- Overlay (visible only on small screens) -->
+    <!-- Overlay -->
     <div 
       v-if="isOpen" 
       class="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
@@ -88,7 +83,6 @@ import { storeToRefs } from 'pinia'
 import { useNavlinksStore } from '@/stores/navlinks'
 import { useLogoStore } from '@/stores/utils/logo'
 import { useProfileStore } from '@/stores/matrix/profile'
-// import { MenuIcon, XIcon } from 'lucide-vue-next'
 
 const router = useRouter()
 const isOpen = ref(false)
@@ -97,7 +91,7 @@ const isXlScreen = ref(false)
 
 // Check screen size
 const checkScreenSize = () => {
-  isXlScreen.value = window.innerWidth >= 1280 // xl breakpoint
+  isXlScreen.value = window.innerWidth >= 1280
 }
 
 onMounted(() => {
@@ -118,45 +112,9 @@ const closeSidebar = () => {
   showProfileMenu.value = false
 }
 
-const handleProfileClick = () => {
-  if (isXlScreen.value) {
-    router.push('/profile')
-  } else {
-    showProfileMenu.value = !showProfileMenu.value
-  }
+const handleUpgrade = () => {
+  router.push('/pricing')
 }
-
-const navigateToProfile = () => {
-  router.push('/profile')
-  showProfileMenu.value = false
-  closeSidebar()
-}
-
-const handleRefresh = () => {
-  window.location.reload()
-}
-
-const handleLogout = () => {
-  // Implement logout logic
-  showProfileMenu.value = false
-  closeSidebar()
-}
-
-// Click outside to close profile menu
-const closeProfileMenu = (event: MouseEvent) => {
-  const target = event.target as HTMLElement
-  if (!target.closest('.profile-menu')) {
-    showProfileMenu.value = false
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', closeProfileMenu)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', closeProfileMenu)
-})
 
 const route = useRoute()
 const navlinkStore = useNavlinksStore()
@@ -221,26 +179,22 @@ const getDomain = (url: string) => {
   imgName.value = newHostname.slice(0, -1)
   imgName2.value = newHostname + "small_logo"
 }
-
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .menu ul {
   transition: all 0.3s ease;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Ensure smooth transitions */
 .transform {
   will-change: transform;
 }

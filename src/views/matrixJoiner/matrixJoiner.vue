@@ -17,6 +17,8 @@
           <input 
             type="search" 
             placeholder="Search" 
+            v-model="searchQuery"
+            @input="handleSearch"
             class="w-full bg-[#1d1d20] border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-700"
           />
           <SearchIcon class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -26,11 +28,21 @@
           <span class="text-gray-400">Showing My Strategies type:</span>
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" class="form-checkbox bg-[#262626] border-gray-700 rounded text-[#7C3AED]" />
+              <input 
+                type="checkbox" 
+                v-model="filters.active"
+                @change="handleFilterChange"
+                class="form-checkbox bg-[#262626] border-gray-700 rounded text-[#7C3AED]" 
+              />
               <span>Active</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" class="form-checkbox bg-[#262626] border-gray-700 rounded text-[#7C3AED]" />
+              <input 
+                type="checkbox" 
+                v-model="filters.inactive"
+                @change="handleFilterChange"
+                class="form-checkbox bg-[#262626] border-gray-700 rounded text-[#7C3AED]" 
+              />
               <span>Inactive</span>
             </label>
           </div>
@@ -53,7 +65,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="matrixJoiner in matrixJoiners" :key="matrixJoiner.id" class="border-b border-gray-800">
+            <tr v-for="matrixJoiner in filteredMatrixJoiners" :key="matrixJoiner.id" class="border-b border-gray-800">
               <td class="py-4 px-4">
                 <div class="flex items-center gap-2">
                   <component 
@@ -109,6 +121,7 @@
       </div>
 
       <!-- Pagination -->
+      <!-- Add pagination component here if needed -->
 
     </div>
   </div>
@@ -125,14 +138,47 @@ import { images } from '@/assets/img'
 import AddEditMatrixJoiner from './addEditMatrixJoiner.vue'
 import DeleteMatrixJoiner from './deleteMatrixJoiner.vue'
 
-
 const matrixJoinersStore = useMatrixJoinersStore()
 const { showAddEditModal, addEditMatrixJoinerData, showDeleteConfirmationModal, idForDelete } = storeToRefs(matrixJoinersStore)
 const { addEditMatrixJoiner } = matrixJoinersStore
 
+const searchQuery = ref('')
+const filters = ref({
+  active: true,
+  inactive: true
+})
+
 const matrixJoiners = computed(() => {
   return matrixJoinersStore.matrixJoiners.sort((a: any, b: any) => b.id - a.id)
 })
+
+const filteredMatrixJoiners = computed(() => {
+  return matrixJoiners.value.filter((joiner: any) => {
+    const matchesSearch = 
+      joiner.strategy.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      joiner.strategy.script.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      joiner.broker.broker_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      joiner.broker.broker_userid.toLowerCase().includes(searchQuery.value.toLowerCase())
+
+    const matchesFilter = 
+      (filters.value.active && joiner.is_active) ||
+      (filters.value.inactive && !joiner.is_active)
+
+    return matchesSearch && matchesFilter
+  })
+})
+
+const handleSearch = () => {
+  // The filtering is handled by the computed property
+}
+
+const handleFilterChange = () => {
+  // If both checkboxes are unchecked, check both of them
+  if (!filters.value.active && !filters.value.inactive) {
+    filters.value.active = true
+    filters.value.inactive = true
+  }
+}
 
 const handleActiveChange = async (matrixJoiner: any) => {
   await addEditMatrixJoiner(matrixJoiner.id, {
@@ -165,3 +211,4 @@ const formatDate = (date: string) => {
   @apply rounded border-gray-700 text-[#7C3AED] focus:ring-[#7C3AED];
 }
 </style>
+

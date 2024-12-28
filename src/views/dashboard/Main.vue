@@ -10,7 +10,7 @@
       <!-- Main Grid Layout -->
       <div class="grid grid-cols-12 gap-4">
         <!-- Left Section - Stats Cards -->
-        <div class="col-span-4 grid grid-cols-2 gap-4">
+        <div class="col-span-12 md:col-span-7 lg:col-span-4 grid grid-cols-2 gap-4">
           <!-- Total Orders -->
           <div class="bg-[#1d1d20] p-4 rounded-lg ">
             <div class="flex flex-col gap-2">
@@ -67,9 +67,9 @@
         </div>
 
         <!-- Right Section - Profit Chart -->
-        <div class="col-span-8">
+        <div class="col-span-12 md:col-span-5 lg:col-span-8">
           <div class="bg-[#1d1d20] rounded-lg py-6">
-            <div class="flex justify-between gap-4">
+            <div class="flex justify-between gap-4 ">
               <!-- Donut Chart with Animation -->
               <div class="relative w-[300px] h-[300px] animate-slide-in-left px-4 flex justify-center">
                 <canvas ref="profitChart" class=""></canvas>
@@ -84,17 +84,17 @@
               </div>
 
               <!-- Legend with Animation -->
-              <div class="flex-1 animate-slide-in-right">
+
+              <div class="flex-1 animate-slide-in-right hidden lg:block">
                 <div class="space-y-4   p-4">
-                  <div v-for="(item, index) in displayedChartData" 
-                       :key="index"
-                       class="flex items-center justify-between px-6 py-6 border-b border-gray-600">
+                  <div v-for="(item, index) in displayedChartData" :key="index"
+                    class="flex items-center justify-between px-6 py-6 border-b border-gray-600">
                     <div class="flex items-center gap-2">
-                      <span class="w-2 h-2 rounded-full" 
-                            :style="{ backgroundColor: item.color }"></span>
+                      <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: item.color }"></span>
                       <span class="text-gray-300">{{ item.symbol }}</span>
                     </div>
-                    <span :class="{'text-green-400': parseFloat(item.pnl) > 0, 'text-red-400': parseFloat(item.pnl) < 0}">
+                    <span
+                      :class="{ 'text-green-400': parseFloat(item.pnl) > 0, 'text-red-400': parseFloat(item.pnl) < 0 }">
                       {{ formatPnL(parseFloat(item.pnl)) }}
                     </span>
                   </div>
@@ -103,24 +103,36 @@
             </div>
           </div>
         </div>
+
       </div>
 
-     
+      <div class="space-y-4 bg-[#1d1d20] mt-3 rounded-md p-4 lg:hidden">
+        <div v-for="(item, index) in displayedChartData" :key="index"
+          class="flex items-center justify-between px-6 py-6 border-b border-gray-600">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: item.color }"></span>
+            <span class="text-gray-300">{{ item.symbol }}</span>
+          </div>
+          <span :class="{ 'text-green-400': parseFloat(item.pnl) > 0, 'text-red-400': parseFloat(item.pnl) < 0 }">
+            {{ formatPnL(parseFloat(item.pnl)) }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- Positions Table -->
-     <div class=" text-white text-2xl mx-8  mb-5 flex justify-between ">
+    <div class=" text-white text-2xl mx-8  mb-5 flex justify-between ">
 
- <p> Positons</p>
- <RouterLink to="/positions" 
-                    class="text-sm text-white px-4 rounded-lg hover:text-white flex items-center gap-2 border border-gray-600 ">
-            View All
-            <ArrowRightIcon class="w-4 h-4" />
-          </RouterLink>
-     </div>
+      <p> Positons</p>
+      <RouterLink to="/positions"
+        class="text-sm text-white px-4 rounded-lg hover:text-white flex items-center gap-2 border border-gray-600 ">
+        View All
+        <ArrowRightIcon class="w-4 h-4" />
+      </RouterLink>
+    </div>
     <div class="bg-[#1d1d20] rounded-lg mx-6">
 
-      
+
       <!-- <div class="p-4 sm:p-6 border-b">
         <div class="flex justify-between items-center">
           <h2 class="text-lg text-gray-500 font-semibold">Positions</h2>
@@ -143,11 +155,7 @@
   </div>
   <!-- <sqOffPosition /> -->
   <sqoffManual />
-  <SideBar2 
-    :isOpen="isSidebarOpen" 
-    @close="closeSidebar" 
-    :title="sidebarTitle"
-  >
+  <SideBar2 :isOpen="isSidebarOpen" @close="closeSidebar" :title="sidebarTitle">
     <div v-if="sidebarContent === 'chart'" class="p-4">
       <positionTable :positions="remainingChartData" :mode="isTabActive" :isChartData="true" />
     </div>
@@ -167,10 +175,10 @@ import { usePositionsStore } from '@/stores/matrix/position'
 import { usePaperPositionsStore } from '@/stores/matrix/paperPositions'
 import sqOffPosition from '../position/sqOffPosition.vue'
 import sqoffManual from '../position/sqoffManual.vue'
-import { 
-  ChartLineIcon, 
-  NetworkIcon, 
-  ShoppingCartIcon, 
+import {
+  ChartLineIcon,
+  NetworkIcon,
+  ShoppingCartIcon,
   ArrowRightIcon,
   ShoppingBagIcon,
   PieChartIcon,
@@ -234,7 +242,7 @@ const closeSidebar = () => {
 // Combined chart data based on mode
 const combinedChartData = computed(() => {
   let data = []
-  
+
   if (isTabActive.value === 'live') {
     data.push(...Object.entries(strategiesPositions.value).map(([strategyId, data]: any) => ({
       symbol: data.name,
@@ -243,14 +251,14 @@ const combinedChartData = computed(() => {
       isPaper: false
     })))
   } else if (isTabActive.value === 'paper') {
-    data.push(...Object.entries(paperPositionsStore.mainPaperPositions).map(([strategyId, data] : any) => ({
+    data.push(...Object.entries(paperPositionsStore.mainPaperPositions).map(([strategyId, data]: any) => ({
       symbol: data.name,
       pnl: data.pnl,
       color: data.color,
       isPaper: true
     })))
   }
-  
+
   return data
 })
 
@@ -270,31 +278,31 @@ const hasMoreChartItems = computed(() => {
 // Combined total PnL based on mode
 const combinedTotalPnL = computed(() => {
   let total = 0
-  
+
   if (isTabActive.value === 'live') {
     total += Object.values(strategiesPositions.value).reduce((sum: number, strategy: any) => sum + strategy.pnl, 0)
   } else if (isTabActive.value === 'paper') {
     total += Object.values(paperPositionsStore.mainPaperPositions).reduce((sum: number, strategy: any) => sum + strategy.pnl, 0)
   }
-  
+
   return total
 })
 
 // Combined total orders based on mode
 const combinedTotalOrders = computed(() => {
   let total = 0
-  
+
   if (isTabActive.value === 'live') {
     total += ordersStore.totalOrders + manualOrdersStore.totalManualOrders
   }
-  
+
   return total
 })
 
 // Displayed positions based on mode
 const displayedPositions = computed(() => {
   let positionsToDisplay = []
-  
+
   if (isTabActive.value === 'live') {
     positionsToDisplay.push(...positions.value.map((p: any) => ({ ...p, isPaper: false })))
   } else if (isTabActive.value === 'paper') {
@@ -307,7 +315,7 @@ const displayedPositions = computed(() => {
       // positionsToDisplay = Object.values(paperPositions.value).map(p => ({ ...p, isPaper: true }))
     }
   }
-  
+
   return positionsToDisplay
 })
 
@@ -382,7 +390,7 @@ interface Broker {
   updated_at: string
 }
 
-interface BrokerArray extends Array<Broker> {}
+interface BrokerArray extends Array<Broker> { }
 
 const brokersData = computed<BrokerArray>(() => brokers.value)
 
@@ -390,7 +398,7 @@ const brokersToken = computed(() => {
   const totalBrokers = brokersData.value.length
   if (totalBrokers > 0) {
     const today = new Date().toISOString().split("T")[0]
-    const tokensGeneratedToday = brokersData.value.filter((broker: any) => 
+    const tokensGeneratedToday = brokersData.value.filter((broker: any) =>
       broker.broker_token_date.split("T")[0] === today && broker.token_status === "success"
     ).length
 
@@ -409,8 +417,9 @@ const brokersToken = computed(() => {
 
 <style scoped lang="scss">
 .donut-chart-container {
-  @apply bg-[#1d1d20] rounded-lg shadow-sm p-4 sm:p-6  border border-white;
-  height: 270px; /* Fixed height */
+  @apply bg-[#1d1d20] rounded-lg shadow-sm p-4 sm:p-6 border border-white;
+  height: 270px;
+  /* Fixed height */
 }
 
 .donut-chart-wrapper {
@@ -423,7 +432,8 @@ const brokersToken = computed(() => {
 
 .legend-wrapper {
   @apply max-w-3/4 sm:w-1/2 pl-4 flex flex-col justify-center;
-  max-height: 300px; /* Fixed max height */
+  max-height: 300px;
+  /* Fixed max height */
   overflow-y: auto;
 }
 
@@ -453,8 +463,13 @@ const brokersToken = computed(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .ord_pos_div {
@@ -488,7 +503,9 @@ const brokersToken = computed(() => {
 
 @media (min-width: 641px) and (max-width: 1024px) {
   .donut-chart-container {
-    .donut-chart-wrapper, .legend-wrapper {
+
+    .donut-chart-wrapper,
+    .legend-wrapper {
       width: 50%;
     }
   }
